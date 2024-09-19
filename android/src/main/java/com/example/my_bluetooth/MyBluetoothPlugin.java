@@ -131,7 +131,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     if ((boolean) arguments.get("stopScanner")) { 
                         central.stopScan();
                         Map<String, String> map = new HashMap<>();
-                        map.put("scanMessage", "停止扫描");
+                        map.put("stopMessage", "停止扫描");
                         flutter_channel.send(map);
                     }
                 }

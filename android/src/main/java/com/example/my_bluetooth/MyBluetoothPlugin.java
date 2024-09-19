@@ -48,14 +48,15 @@ public class MyBluetoothPlugin implements FlutterPlugin {
         BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
             @Override
             public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
-                peripherals.add(peripheral);
-                String peripheral_name = peripheral.getName();
-                String peripheral_address = peripheral.getAddress();
-                message_list.add(peripheral_name + "#" + peripheral_address);
-                Map<String, Object> map = new HashMap<>();
-                map.put("bluetooth_list", message_list);
-                flutter_channel.send(map);
-                message_list.clear();
+                if (!peripherals.contains(peripheral)) {
+                    peripherals.add(peripheral);
+                    String peripheral_name = peripheral.getName();
+                    String peripheral_address = peripheral.getAddress();
+                    message_list.add(peripheral_name + "#" + peripheral_address);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("peripherals", message_list);
+                    flutter_channel.send(map);
+                }
             }
             @Override
             public void onConnectedPeripheral(BluetoothPeripheral peripheral) {

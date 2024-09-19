@@ -55,6 +55,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> map = new HashMap<>();
                 map.put("bluetooth_list", message_list);
                 flutter_channel.send(map);
+                message_list.clear();
             }
             @Override
             public void onConnectedPeripheral(BluetoothPeripheral peripheral) {

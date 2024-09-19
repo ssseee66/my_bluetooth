@@ -134,6 +134,10 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         map.put("stopMessage", "停止扫描");
                         flutter_channel.send(map);
                     }
+                } else if (arguments.containsKey("close_connect")) {
+                    if ((boolean) arguments.get("close_connect")) {
+                        client.close();
+                    }
                 }
             }
         });

@@ -54,7 +54,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     String peripheral_address = peripheral.getAddress();
                     message_list.add(peripheral_name + "#" + peripheral_address);
                     Map<String, Object> map = new HashMap<>();
-                    map.put("peripherals", message_list);
+                    map.put("bluetooth_list", message_list);
                     flutter_channel.send(map);
                 }
             }

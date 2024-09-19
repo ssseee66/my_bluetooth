@@ -104,12 +104,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
-                    } else {
-                        central.stopScan();
-                        Map<String, String> map = new HashMap<>();
-                        map.put("scanMessage", "停止扫描");
-                        flutter_channel.send(map);
-                    }
+                    } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
@@ -131,6 +126,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             });
                             client.openBleDevice(device);
                         }
+                    }
+                } else if (arguments.containsKey("stopScanner")) {
+                    if ((boolean) arguments.get("stopScanner")) { 
+                        central.stopScan();
+                        Map<String, String> map = new HashMap<>();
+                        map.put("scanMessage", "停止扫描");
+                        flutter_channel.send(map);
                     }
                 }
             }

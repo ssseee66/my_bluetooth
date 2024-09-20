@@ -49,7 +49,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         applicationContext = flutterPluginBinding.getApplicationContext();
         bleBluetoothClient = new BleBluetoothClient(applicationContext);
-        bleBluetoothClient.set
         flutter_channel = new BasicMessageChannel<>(
                 flutterPluginBinding.getBinaryMessenger(),
                 FLUTTER_TO_ANDROID_CHANNEL,

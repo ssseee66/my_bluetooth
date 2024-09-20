@@ -37,8 +37,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private Context applicationContext;
     private GClient client = new GClient();
     private BluetoothCentralManager central;
-    private MsgBaseInventoryEpc msgBaseInventoryEpc;
-    private MsgBaseStop msgBaseStop;
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -68,6 +66,33 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Log.e(peripheral.getName(), "连接成功");
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
+                client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+                    if (logBaseEpcInfo.getResult() == 0) {
+                        Log.e("epc", logBaseEpcInfo.getEpc());
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                        flutter_channel.send(map);
+                    }
+                };
+                client.onTagEpcOver = (s, logBaseEpcOver) -> {
+                    Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+                    flutter_channel.send(map);
+                };
+                MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
+                msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
+                client.sendSynMsg(msgBaseInventoryEpc);
+                if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("readerOperationMssagee", "读卡操作成功");
+                    flutter_channel.send(map);
+                } else {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                    flutter_channel.send(map);
+                }
                 flutter_channel.send(map);
             }
             @Override
@@ -86,20 +111,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             }
         };
         central = new BluetoothCentralManager(applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
-        client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-            if (logBaseEpcInfo.getResult() == 0) {
-                Log.e("epc", logBaseEpcInfo.getEpc());
-                Map<String, Object> map = new HashMap<>();
-                map.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                flutter_channel.send(map);
-            }
-        };
-        client.onTagEpcOver = (s, logBaseEpcOver) -> {
-            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-            Map<String, Object> map = new HashMap<>();
-            map.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-            flutter_channel.send(map);
-        };
+        
         flutter_channel.setMessageHandler((message, reply) -> {
             Map<String, Object> arguments = (Map<String, Object>) message;
             if (arguments != null) {
@@ -148,7 +160,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("startReader")) {
                     if ((boolean) arguments.get("startReader")) {
-                        msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
                         client.sendSynMsg(msgBaseInventoryEpc);
@@ -164,7 +176,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     } 
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
-                        msgBaseStop = new MsgBaseStop();
+                        MsgBaseStop msgBaseStop = new MsgBaseStop();
                         client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {
                             Map<String, String> map = new HashMap<>();

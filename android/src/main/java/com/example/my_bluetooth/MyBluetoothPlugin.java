@@ -144,8 +144,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         map.put("connectMessage", "连接已关闭");
                         flutter_channel.send(map);
                     }
-                } else if (arguments.containsKey("start_reader")) {
-                    if ((boolean) arguments.get("start_reader")) {
+                } else if (arguments.containsKey("startReader")) {
+                    if ((boolean) arguments.get("startReader")) {
                         MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
@@ -160,8 +160,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                         }
                     } 
-                } else if (arguments.containsKey("stop_reader")) {
-                    if ((boolean) arguments.get("stop_reader")) {
+                } else if (arguments.containsKey("stopReader")) {
+                    if ((boolean) arguments.get("stopReader")) {
                         MsgBaseStop msgBaseStop = new MsgBaseStop();
                         client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {

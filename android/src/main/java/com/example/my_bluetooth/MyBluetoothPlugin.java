@@ -1,5 +1,6 @@
 package com.example.my_bluetooth;
 
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -10,6 +11,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.gg.reader.api.dal.GClient;
+import com.gg.reader.api.dal.communication.BleBluetoothClient;
+import com.gg.reader.api.dal.communication.BleClientCallback;
+import com.gg.reader.api.dal.communication.BluetoothClient;
+import com.gg.reader.api.dal.communication.BluetoothHandler;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
 import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
@@ -38,36 +43,35 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private BasicMessageChannel<Object> flutter_channel;
     private Context applicationContext;
     private GClient client = new GClient();
-    private BluetoothCentralManager central;
+    private BleBluetoothClient bleBluetoothClient;
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         applicationContext = flutterPluginBinding.getApplicationContext();
+        bleBluetoothClient = new BleBluetoothClient(applicationContext);
         flutter_channel = new BasicMessageChannel<>(
                 flutterPluginBinding.getBinaryMessenger(),
                 FLUTTER_TO_ANDROID_CHANNEL,
                 StandardMessageCodec.INSTANCE
         );
         List<String> message_list = new LinkedList<>();
-        List<BluetoothPeripheral> peripherals = new LinkedList<>();
-        BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
-            @Override
-            public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
-                if (!peripherals.contains(peripheral)) {
-                    peripherals.add(peripheral);
-                    String peripheral_name = peripheral.getName();
-                    String peripheral_address = peripheral.getAddress();
-                    message_list.add(peripheral_name + "#" + peripheral_address);
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("bluetooth_list", message_list);
-                    flutter_channel.send(map);
-                }
-            }
-            @Override
-            public void onConnectedPeripheral(BluetoothPeripheral peripheral) {
-                Log.e(peripheral.getName(), "连接成功");
+        List<BluetoothDevice> devices = new LinkedList<>();
+        bleBluetoothClient.scanCallBack = bluetoothDevice -> {
+            if (!devices.contains(bluetoothDevice)) {
+                devices.add(bluetoothDevice);
+                String peripheral_name = bluetoothDevice.getName();
+                String peripheral_address = bluetoothDevice.getAddress();
+                message_list.add(peripheral_name + "#" + peripheral_address);
                 Map<String, Object> map = new HashMap<>();
-                map.put("connectMessage", "连接成功>>>" + peripheral.getName());
+                map.put("bluetooth_list", message_list);
+                flutter_channel.send(map);
+            }
+        };
+        bleBluetoothClient.connectCallBack = new BleClientCallback.OnBlueConnectCallBack() {
+            @Override
+            public void onConnectSuccess() {
+                Map<String, Object> map = new HashMap<>();
+                map.put("connectMessage", "连接成功");
                 client.onTagEpcLog = (s, logBaseEpcInfo) -> {
                     if (logBaseEpcInfo.getResult() == 0) {
                         Log.e("epc", logBaseEpcInfo.getEpc());
@@ -85,57 +89,85 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 flutter_channel.send(map);
             }
             @Override
-            public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {
-                Log.e(peripheral.getName(), "连接失败");
+            public void onConnectFailure() {
                 Map<String, Object> map = new HashMap<>();
-                map.put("connectMessage", "连接失败>>>" + peripheral.getName());
+                map.put("connectMessage", "连接失败");
                 flutter_channel.send(map);
             }
+            
             @Override
-            public void onDisconnectedPeripheral(BluetoothPeripheral peripheral, HciStatus status) {
-                Log.e(peripheral.getName(), "断开连接");
+            public void onDisconnect() {
                 Map<String, Object> map = new HashMap<>();
-                map.put("connectMessage", "断开连接>>>" + peripheral.getName());
+                map.put("connectMessage", "断开连接");
                 flutter_channel.send(map);
             }
         };
-        central = new BluetoothCentralManager(applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
         
         flutter_channel.setMessageHandler((message, reply) -> {
             Map<String, Object> arguments = (Map<String, Object>) message;
             if (arguments != null) {
                 if (arguments.containsKey("startScanner")) {
                     if ((boolean) arguments.get("startScanner")) {
-                        central.scanForPeripherals();
+                        bleBluetoothClient.scanBluetooth(true, 5000);
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
                     } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-                    for (BluetoothPeripheral peripheral: peripherals) {
-                        if (peripheral.getAddress().equals(bluetooth_address)) {
-                            central.stopScan();
-                            BleDevice device = new BleDevice(central, peripheral);
-                            device.setServiceCallback(new BleServiceCallback() {
-                                @Override
-                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-                                    List<BluetoothGattService> services = peripheral.getServices();
-                                    for (BluetoothGattService service : services) {
-                                        //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
-                                            device.findCharacteristic(service);
-                                        }
-                                    }
-                                    device.setNotify(true);
-                                }
-                            });
-                            client.openBleDevice(device);
+                    if (client.openBleBluetooth(
+                            bluetooth_address,
+                            0,
+                            bleBluetoothClient
+                        )) {
+                        client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+                            if (logBaseEpcInfo.getResult() == 0) {
+                                Log.e("epc", logBaseEpcInfo.getEpc());
+                                Map<String, Object> maps = new HashMap<>();
+                                maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                                flutter_channel.send(maps);
+                            }
+                        };
+                        client.onTagEpcOver = (s, logBaseEpcOver) -> {
+                            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+                            Map<String, Object> maps = new HashMap<>();
+                            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+                            flutter_channel.send(maps);
+                        };
+                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                        msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
+                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
+                        client.sendSynMsg(msgBaseInventoryEpc);
+                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMssagee", "读卡操作成功");
+                            flutter_channel.send(map);
+                        } else {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                            flutter_channel.send(map);
                         }
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        MsgBaseStop msgBaseStop = new MsgBaseStop();
+                        client.sendSynMsg(msgBaseStop);
+                        if (0x00 == msgBaseStop.getRtCode()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMessage", "取消读卡操作成功");
+                            flutter_channel.send(map);
+                        } else {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMessage", "取消读卡操作失败");
+                            flutter_channel.send(map);
+                        }
+                        client.close();
                     }
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
-                        central.stopScan();
+                        bleBluetoothClient.stopScanBluetooth();
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "停止扫描");
                         flutter_channel.send(map);

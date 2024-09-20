@@ -69,29 +69,29 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 client.onTagEpcLog = (s, logBaseEpcInfo) -> {
                     if (logBaseEpcInfo.getResult() == 0) {
                         Log.e("epc", logBaseEpcInfo.getEpc());
-                        Map<String, Object> map = new HashMap<>();
-                        map.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                        flutter_channel.send(map);
+                        Map<String, Object> maps = new HashMap<>();
+                        maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                        flutter_channel.send(maps);
                     }
                 };
                 client.onTagEpcOver = (s, logBaseEpcOver) -> {
                     Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-                    flutter_channel.send(map);
+                    Map<String, Object> maps = new HashMap<>();
+                    maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+                    flutter_channel.send(maps);
                 };
                 MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                 msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                 msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
                 client.sendSynMsg(msgBaseInventoryEpc);
                 if (0x00 == msgBaseInventoryEpc.getRtCode()) {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("readerOperationMssagee", "读卡操作成功");
-                    flutter_channel.send(map);
+                    Map<String, String> maps = new HashMap<>();
+                    maps.put("readerOperationMssagee", "读卡操作成功");
+                    flutter_channel.send(maps);
                 } else {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
-                    flutter_channel.send(map);
+                    Map<String, String> maps = new HashMap<>();
+                    maps.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                    flutter_channel.send(maps);
                 }
                 flutter_channel.send(map);
             }

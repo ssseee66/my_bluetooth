@@ -115,56 +115,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-                    if (client.openBleBluetooth(
-                            bluetooth_address,
-                            0,
-                            bleBluetoothClient
-                        )) {
-                        client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-                            if (logBaseEpcInfo.getResult() == 0) {
-                                Log.e("epc", logBaseEpcInfo.getEpc());
-                                Map<String, Object> maps = new HashMap<>();
-                                maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                                flutter_channel.send(maps);
-                            }
-                        };
-                        client.onTagEpcOver = (s, logBaseEpcOver) -> {
-                            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-                            Map<String, Object> maps = new HashMap<>();
-                            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-                            flutter_channel.send(maps);
-                        };
-                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
-                        msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
-                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
-                        client.sendSynMsg(msgBaseInventoryEpc);
-                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMssagee", "读卡操作成功");
-                            flutter_channel.send(map);
-                        } else {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
-                            flutter_channel.send(map);
-                        }
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        MsgBaseStop msgBaseStop = new MsgBaseStop();
-                        client.sendSynMsg(msgBaseStop);
-                        if (0x00 == msgBaseStop.getRtCode()) {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "取消读卡操作成功");
-                            flutter_channel.send(map);
-                        } else {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "取消读卡操作失败");
-                            flutter_channel.send(map);
-                        }
-                        client.close();
-                    }
+                    bleBluetoothClient.open(bluetooth_address, 1);
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
                         bleBluetoothClient.stopScanBluetooth();

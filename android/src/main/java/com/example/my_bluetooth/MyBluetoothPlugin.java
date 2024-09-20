@@ -37,6 +37,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private Context applicationContext;
     private GClient client = new GClient();
     private BluetoothCentralManager central;
+    private MsgBaseInventoryEpc msgBaseInventoryEpc;
+    private MsgBaseStop msgBaseStop;
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -146,7 +148,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("startReader")) {
                     if ((boolean) arguments.get("startReader")) {
-                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                        msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
                         client.sendSynMsg(msgBaseInventoryEpc);
@@ -162,7 +164,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     } 
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
-                        MsgBaseStop msgBaseStop = new MsgBaseStop();
+                        msgBaseStop = new MsgBaseStop();
                         client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {
                             Map<String, String> map = new HashMap<>();

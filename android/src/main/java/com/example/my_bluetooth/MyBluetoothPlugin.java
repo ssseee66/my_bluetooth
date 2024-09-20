@@ -158,7 +158,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                         } else {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "读卡操失败");
+                            map.put("readerOperationMessage", "读卡操失败" + msgBaseInventoryEpc.getRtMsg());
                             flutter_channel.send(map);
                         }
                     } 

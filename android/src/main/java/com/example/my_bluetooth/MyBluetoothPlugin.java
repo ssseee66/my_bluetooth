@@ -10,6 +10,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.gg.reader.api.dal.GClient;
+import com.gg.reader.api.protocol.gx.EnumG;
+import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
+import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
@@ -128,15 +131,44 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         }
                     }
                 } else if (arguments.containsKey("stopScanner")) {
-                    if ((boolean) arguments.get("stopScanner")) { 
-                        central.stopScan();
-                        Map<String, String> map = new HashMap<>();
-                        map.put("stopMessage", "停止扫描");
-                        flutter_channel.send(map);
-                    }
+                    central.stopScan();
+                    Map<String, String> map = new HashMap<>();
+                    map.put("scanMessage", "停止扫描");
+                    flutter_channel.send(map);
                 } else if (arguments.containsKey("close_connect")) {
                     if ((boolean) arguments.get("close_connect")) {
                         client.close();
+                        Map<String, String> map = new HashMap<>();
+                        map.put("connectMessage", "连接已关闭");
+                        flutter_channel.send(map);
+                    }
+                } else if (arguments.containsKey("start_reader")) {
+                    if ((boolean) arguments.get("start_reader")) {
+                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                        msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
+                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
+                        client.sendSynMsg(msgBaseInventoryEpc);
+                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperation", "读卡操作成功");
+                            flutter_channel.send(map);
+                        } else {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperation", "读卡操失败");
+                            flutter_channel.send(map);
+                        }
+                    } else {
+                        MsgBaseStop msgBaseStop = new MsgBaseStop();
+                        client.sendSynMsg(msgBaseStop);
+                        if (0x00 == msgBaseStop.getRtCode()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperation", "取消读卡操作成功");
+                            flutter_channel.send(map);
+                        } else {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperation", "取消读卡操失败");
+                            flutter_channel.send(map);
+                        }
                     }
                 }
             }

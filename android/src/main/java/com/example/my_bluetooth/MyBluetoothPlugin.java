@@ -49,7 +49,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         applicationContext = flutterPluginBinding.getApplicationContext();
         bleBluetoothClient = new BleBluetoothClient(applicationContext);
-        
+        bleBluetoothClient.set
         flutter_channel = new BasicMessageChannel<>(
                 flutterPluginBinding.getBinaryMessenger(),
                 FLUTTER_TO_ANDROID_CHANNEL,
@@ -114,10 +114,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
                     } 
-                    bleBluetoothClient.enableTxNotification();
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-                    bleBluetoothClient.open(bluetooth_address, 1);
+                    if (bleBluetoothClient.open(bluetooth_address, 1)) {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("connectMessage", "连接成功");
+                        flutter_channel.send(map);
+                    }
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
                         bleBluetoothClient.stopScanBluetooth();

@@ -159,7 +159,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             map.put("readerOperation", "读卡操失败");
                             flutter_channel.send(map);
                         }
-                    } else {
+                    } 
+                } else if (arguments.containsKey("stop_reader")) {
+                    if ((boolean) arguments.get("stop_reader")) {
                         MsgBaseStop msgBaseStop = new MsgBaseStop();
                         client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {

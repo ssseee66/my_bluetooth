@@ -149,7 +149,44 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                     device.setNotify(true);
                                 }
                             });
-                            client.openBleDevice(device);
+                            if (client.openBleDevice(device)) {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("connectMessage", "连接成功>>>" + peripheral.getName());
+                                client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+                                    if (logBaseEpcInfo.getResult() == 0) {
+                                        Log.e("epc", logBaseEpcInfo.getEpc());
+                                        Map<String, Object> maps = new HashMap<>();
+                                        maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                                        flutter_channel.send(maps);
+                                    }
+                                };
+                                client.onTagEpcOver = (s, logBaseEpcOver) -> {
+                                    Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+                                    Map<String, Object> maps = new HashMap<>();
+                                    maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+                                    flutter_channel.send(maps);
+                                };
+                                MsgBaseSetPower msgBaseSetPower = new MsgBaseSetPower();
+                                Hashtable<Integer, Integer> hashtable = new Hashtable<>();
+                                hashtable.put(1, 30);
+                                hashtable.put(2, 30);
+                                hashtable.put(3, 30);
+                                hashtable.put(4, 30);
+                                msgBaseSetPower.setDicPower(hashtable);
+                                client.sendSynMsg(msgBaseSetPower);
+                                if (0 == msgBaseSetPower.getRtCode())   {
+                                    System.out.println("Power configuration successful.");
+                                    Map<String, String> maps = new HashMap<>();
+                                    maps.put("readerOperationMessage", "配置成功");
+                                    flutter_channel.send(maps);
+                                } else { 
+                                    System.out.println("Power configuration successful.");
+                                    Map<String, String> maps = new HashMap<>();
+                                    maps.put("readerOperationMessage", "配置成功失败：" + msgBaseSetPower.getRtMsg());
+                                    flutter_channel.send(maps);
+                                }
+                                flutter_channel.send(map);
+                            }
                         }
                     }
                 } else if (arguments.containsKey("stopScanner")) {

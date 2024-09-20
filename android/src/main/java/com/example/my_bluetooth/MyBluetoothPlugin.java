@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import com.gg.reader.api.dal.GClient;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
+import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
 import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
@@ -22,6 +23,7 @@ import com.peripheral.ble.HciStatus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -87,7 +89,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 hashtable.put(3, 30);
                 hashtable.put(4, 30);
                 msgBaseSetPower.setDicPower(hashtable);
-                clientConn.SendSynMsg(msgBaseSetPower);
+                client.sendSynMsg(msgBaseSetPower);
                 if (0 == msgBaseSetPower.getRtCode())   {
                     System.out.println("Power configuration successful.");
                     Map<String, String> maps = new HashMap<>();

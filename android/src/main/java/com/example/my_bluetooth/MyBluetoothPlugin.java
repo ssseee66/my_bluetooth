@@ -82,25 +82,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
                     flutter_channel.send(maps);
                 };
-                MsgBaseSetPower msgBaseSetPower = new MsgBaseSetPower();
-                Hashtable<Integer, Integer> hashtable = new Hashtable<>();
-                hashtable.put(1, 30);
-                hashtable.put(2, 30);
-                hashtable.put(3, 30);
-                hashtable.put(4, 30);
-                msgBaseSetPower.setDicPower(hashtable);
-                client.sendSynMsg(msgBaseSetPower);
-                if (0 == msgBaseSetPower.getRtCode())   {
-                    System.out.println("Power configuration successful.");
-                    Map<String, String> maps = new HashMap<>();
-                    maps.put("readerOperationMessage", "配置成功");
-                    flutter_channel.send(maps);
-                } else { 
-                    System.out.println("Power configuration successful.");
-                    Map<String, String> maps = new HashMap<>();
-                    maps.put("readerOperationMessage", "配置成功失败：" + msgBaseSetPower.getRtMsg());
-                    flutter_channel.send(maps);
-                }
                 flutter_channel.send(map);
             }
             @Override

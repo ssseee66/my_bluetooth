@@ -154,11 +154,11 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperation", "读卡操作成功");
+                            map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);
                         } else {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperation", "读卡操失败");
+                            map.put("readerOperationMessage", "读卡操失败");
                             flutter_channel.send(map);
                         }
                     } 
@@ -168,11 +168,11 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperation", "取消读卡操作成功");
+                            map.put("readerOperationMessage", "取消读卡操作成功");
                             flutter_channel.send(map);
                         } else {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperation", "取消读卡操失败");
+                            map.put("readerOperationMessage", "取消读卡操失败");
                             flutter_channel.send(map);
                         }
                     }

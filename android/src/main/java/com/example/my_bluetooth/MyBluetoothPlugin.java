@@ -101,13 +101,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 MsgBaseStop msgBaseStop = new MsgBaseStop();
                 client.sendSynMsg(msgBaseStop);
                 if (0x00 == msgBaseStop.getRtCode()) {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("readerOperationMessage", "取消读卡操作成功");
-                    flutter_channel.send(map);
+                    Map<String, String> maps = new HashMap<>();
+                    maps.put("readerOperationMessage", "取消读卡操作成功");
+                    flutter_channel.send(maps);
                 } else {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("readerOperationMessage", "取消读卡操作失败");
-                    flutter_channel.send(map);
+                    Map<String, String> maps = new HashMap<>();
+                    maps.put("readerOperationMessage", "取消读卡操作失败");
+                    flutter_channel.send(maps);
                 }
                 flutter_channel.send(map);
             }

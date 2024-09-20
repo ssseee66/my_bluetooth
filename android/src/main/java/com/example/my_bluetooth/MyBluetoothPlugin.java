@@ -1,11 +1,7 @@
 package com.example.my_bluetooth;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,28 +9,18 @@ import androidx.annotation.NonNull;
 import com.gg.reader.api.dal.GClient;
 import com.gg.reader.api.dal.communication.BleBluetoothClient;
 import com.gg.reader.api.dal.communication.BleClientCallback;
-import com.gg.reader.api.dal.communication.BluetoothClient;
-import com.gg.reader.api.dal.communication.BluetoothHandler;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
-import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
 import com.gg.reader.api.protocol.gx.MsgBaseStop;
-import com.peripheral.ble.BleDevice;
-import com.peripheral.ble.BleServiceCallback;
-import com.peripheral.ble.BluetoothCentralManager;
-import com.peripheral.ble.BluetoothCentralManagerCallback;
-import com.peripheral.ble.BluetoothPeripheral;
-import com.peripheral.ble.HciStatus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BasicMessageChannel;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
@@ -67,6 +53,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 flutter_channel.send(map);
             }
         };
+        AtomicBoolean connect_success = new AtomicBoolean(false);
         bleBluetoothClient.connectCallBack = new BleClientCallback.OnBlueConnectCallBack() {
             @Override
             public void onConnectSuccess() {
@@ -109,13 +96,29 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 if (arguments.containsKey("startScanner")) {
                     if ((boolean) arguments.get("startScanner")) {
                         bleBluetoothClient.scanBluetooth(true, 5000);
+                        bleBluetoothClient.enableTxNotification();
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
                     } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-                    if (bleBluetoothClient.open(bluetooth_address, 1)) {
+                    if (client.openBleBluetooth(bluetooth_address, 1, bleBluetoothClient)) {
+                        connect_success.set(true);
+                        client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+                            if (logBaseEpcInfo.getResult() == 0) {
+                                Log.e("epc", logBaseEpcInfo.getEpc());
+                                Map<String, Object> maps = new HashMap<>();
+                                maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                                flutter_channel.send(maps);
+                            }
+                        };
+                        client.onTagEpcOver = (s, logBaseEpcOver) -> {
+                            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+                            Map<String, Object> maps = new HashMap<>();
+                            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+                            flutter_channel.send(maps);
+                        };
                         Map<String, Object> map = new HashMap<>();
                         map.put("connectMessage", "连接成功");
                         flutter_channel.send(map);

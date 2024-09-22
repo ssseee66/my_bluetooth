@@ -64,6 +64,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
             flutter_channel.send(maps);
         };
+        
         BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
             @Override
             public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
@@ -106,20 +107,20 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Log.e(peripheral.getName(), "连接成功");
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
-                client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-                    if (logBaseEpcInfo.getResult() == 0) {
-                        Log.e("epc", logBaseEpcInfo.getEpc());
-                        Map<String, Object> maps = new HashMap<>();
-                        maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                        flutter_channel.send(maps);
-                    }
-                };
-                client.onTagEpcOver = (s, logBaseEpcOver) -> {
-                    Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-                    Map<String, Object> maps = new HashMap<>();
-                    maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-                    flutter_channel.send(maps);
-                };
+                // client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+                //     if (logBaseEpcInfo.getResult() == 0) {
+                //         Log.e("epc", logBaseEpcInfo.getEpc());
+                //         Map<String, Object> maps = new HashMap<>();
+                //         maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                //         flutter_channel.send(maps);
+                //     }
+                // };
+                // client.onTagEpcOver = (s, logBaseEpcOver) -> {
+                //     Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+                //     Map<String, Object> maps = new HashMap<>();
+                //     maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+                //     flutter_channel.send(maps);
+                // };
                 flutter_channel.send(map);
             }
             @Override
@@ -137,7 +138,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 flutter_channel.send(map);
             }
         };
-        central = new BluetoothCentralManager(applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
+        central = new BluetoothCentralManager(this, centralManagerCallback, new Handler(Looper.getMainLooper()));
         
         flutter_channel.setMessageHandler((message, reply) -> {
             Map<String, Object> arguments = (Map<String, Object>) message;
@@ -191,7 +192,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
                         client.sendSynMsg(msgBaseInventoryEpc);
-                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                        if (msgBaseInventoryEpc.getRtCode() == 0) {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);

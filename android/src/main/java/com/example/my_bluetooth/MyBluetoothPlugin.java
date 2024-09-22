@@ -100,19 +100,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         }
                     });
                     client.openBleDevice(bleDevice);
-                    MsgBaseInventoryEpc msg = new MsgBaseInventoryEpc();
-                    msg.setAntennaEnable(EnumG.AntennaNo_1);
-                    msg.setInventoryMode(EnumG.InventoryMode_Inventory);
-                    client.sendSynMsg(msg);
-                    if (msg.getRtCode() == 0) {
-                        Map<String, String> map = new HashMap<>();
-                        map.put("readerOperationMssagee", "读卡操作成功");
-                        flutter_channel.send(map);
-                    } else {
-                        Map<String, String> map = new HashMap<>();
-                        map.put("readerOperationMessage", "读卡操作失败：" + msg.getRtCode() + msg.getRtMsg());
-                        flutter_channel.send(map);
-                    }
+                    
                 }
             }
             @Override
@@ -120,6 +108,19 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Log.e(peripheral.getName(), "连接成功");
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
+                MsgBaseInventoryEpc msg = new MsgBaseInventoryEpc();
+                msg.setAntennaEnable(EnumG.AntennaNo_1);
+                msg.setInventoryMode(EnumG.InventoryMode_Inventory);
+                client.sendSynMsg(msg);
+                if (msg.getRtCode() == 0) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("readerOperationMssagee", "读卡操作成功");
+                    flutter_channel.send(map);
+                } else {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("readerOperationMessage", "读卡操作失败：" + msg.getRtCode() + msg.getRtMsg());
+                    flutter_channel.send(map);
+                }
                 // client.onTagEpcLog = (s, logBaseEpcInfo) -> {
                 //     if (logBaseEpcInfo.getResult() == 0) {
                 //         Log.e("epc", logBaseEpcInfo.getEpc());

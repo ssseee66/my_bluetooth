@@ -60,39 +60,14 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
         BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
             @Override
             public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
-                // if (!peripherals.contains(peripheral)) {
-                //     peripherals.add(peripheral);
-                //     String peripheral_name = peripheral.getName();
-                //     String peripheral_address = peripheral.getAddress();
-                //     message_list.add(peripheral_name + "#" + peripheral_address);
-                //     Map<String, Object> map = new HashMap<>();
-                //     map.put("bluetooth_list", message_list);
-                //     flutter_channel.send(map);
-                // }
-                if (!peripheral.getName().isEmpty() && peripheral.getName().equals("HC-RFID")) {
-                    central.stopScan();
-    
-                    BleDevice bleDevice = new BleDevice(central, peripheral);
-                    //指定serviceUUID,不需要再setServiceCallback()筛选确定可用BluetoothGattCharacteristic
-                    //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-    //                bleDevice.setServiceUuid("0000fff0-0000-1000-8000-00805f9b34fb");
-    
-                    //未指定serviceUUID,需要自己筛选可用BluetoothGattCharacteristic
-                    bleDevice.setServiceCallback(new BleServiceCallback() {
-                        @Override
-                        public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-                            List<BluetoothGattService> services = peripheral.getServices();
-                            for (BluetoothGattService service : services) {
-                                //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
-                                    bleDevice.findCharacteristic(service);
-                                }
-                            }
-                            bleDevice.setNotify(true);
-                        }
-                    });
-                    client.openBleDevice(bleDevice);
-                    
+                if (!peripherals.contains(peripheral)) {
+                    peripherals.add(peripheral);
+                    String peripheral_name = peripheral.getName();
+                    String peripheral_address = peripheral.getAddress();
+                    message_list.add(peripheral_name + "#" + peripheral_address);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("bluetooth_list", message_list);
+                    flutter_channel.send(map);
                 }
             }
             @Override
@@ -100,33 +75,6 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                 Log.e(peripheral.getName(), "连接成功");
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
-                // client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-                //     if (logBaseEpcInfo.getResult() == 0) {
-                //         Log.e("epc", logBaseEpcInfo.getEpc());
-                //         Map<String, Object> maps = new HashMap<>();
-                //         maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                //         flutter_channel.send(maps);
-                //     }
-                // };
-                // client.onTagEpcOver = (s, logBaseEpcOver) -> {
-                //     Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-                //     Map<String, Object> maps = new HashMap<>();
-                //     maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-                //     flutter_channel.send(maps);
-                // };
-                MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
-                msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
-                msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
-                client.sendSynMsg(msgBaseInventoryEpc);
-                if (msgBaseInventoryEpc.getRtCode() == 0) {
-                    Map<String, String> maps = new HashMap<>();
-                    maps.put("readerOperationMssagee", "读卡操作成功");
-                    flutter_channel.send(maps);
-                } else {
-                    Map<String, String> maps = new HashMap<>();
-                    maps.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
-                    flutter_channel.send(maps);
-                }
                 flutter_channel.send(map);
             }
             @Override

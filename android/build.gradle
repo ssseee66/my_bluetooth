@@ -70,7 +70,7 @@ dependencies {
     //implementation fileTree(dir: 'G:\\flutter_project\\plugins\\rfid_sdk\\android-api\\lib', include: ['*.aar', '*.jar'], exclude: [])
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('libs\\reader.jar')
-    implementation fileTree(dir: 'G:\\flutter_project\\plugins\\rfid_sdk\\android-api\\lib', include: ['*.aar', '*.jar'], exclude: [])
+    // implementation fileTree(dir: 'G:\\flutter_project\\plugins\\rfid_sdk\\android-api\\lib', include: ['*.aar', '*.jar'], exclude: [])
     compileOnly files("$flutterRoot/bin/cache/artifacts/engine/android-arm/flutter.jar")
     compileOnly 'androidx.annotation:annotation:1.8.0'
 

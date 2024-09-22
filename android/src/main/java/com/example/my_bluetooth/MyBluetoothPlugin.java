@@ -116,20 +116,20 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                     List<BluetoothGattService> services = peripheral.getServices();
                                     Map<String, Object> maps = new HashMap<>();
                                     List<String> uuids = new LinkedList<>();
-                                    
+                                    String hh = "";
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"
                                         if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
                                             device.findCharacteristic(service);
                                             uuids.add(service.getUuid().toString());
-                                            maps.put("epcAppearOverMessage", "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + service.getCharacteristics());
+                                            hh = "epcAppearOverMessage", "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + service.getCharacteristics();
                                         }
                                         
                                     }
                                     
                                     boolean notity = device.setNotify(true);
-                    
-                                    maps.put("epcApperOverMessage", maps.get("epcAppearOverMessage").toString() + notity);
+                                    hh += notity;
+                                    maps.put("epcApperOverMessage", hh);
                                     flutter_channel.send(maps);
                                 }
                             });

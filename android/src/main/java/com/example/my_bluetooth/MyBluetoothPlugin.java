@@ -123,7 +123,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                     List<BluetoothGattService> services = peripheral.getServices();
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
+                                        if (service.getUuid().toString().equals("00001101-0000-1000-8000-00805F9B34FB")) {
                                             device.findCharacteristic(service);
                                         }
                                     }

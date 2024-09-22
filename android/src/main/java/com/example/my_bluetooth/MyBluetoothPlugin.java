@@ -125,9 +125,10 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                         }
                                         
                                     }
-                                    maps.put("epcAppearOverMessage", "服务>>>" + uuids);
+                                    
+                                    boolean notity = device.setNotify(true);
+                                    maps.put("epcAppearOverMessage", "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + notity);
                                     flutter_channel.send(maps);
-                                    device.setNotify(true);
                                 }
                             });
                             client.openBleDevice(device);

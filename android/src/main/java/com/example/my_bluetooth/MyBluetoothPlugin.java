@@ -114,6 +114,9 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                 @Override
                                 public void onServicesDiscovered(BluetoothPeripheral peripheral) {
                                     List<BluetoothGattService> services = peripheral.getServices();
+                                    Map<String, Object> maps = new HashMap<>();
+                                    maps.put("epcAppearOverMessage", "服务>>>" + logBaseEpcOver.getRtMsg());
+                                    flutter_channel.send(maps);
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"
                                         if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805F9B34FB")) {

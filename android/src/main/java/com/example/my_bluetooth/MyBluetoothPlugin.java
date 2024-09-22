@@ -115,7 +115,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                 public void onServicesDiscovered(BluetoothPeripheral peripheral) {
                                     List<BluetoothGattService> services = peripheral.getServices();
                                     Map<String, Object> maps = new HashMap<>();
-                                    List<String> uuids = LinkedList<>();
+                                    List<String> uuids = new LinkedList<>();
                                     
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"

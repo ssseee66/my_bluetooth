@@ -138,7 +138,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 flutter_channel.send(map);
             }
         };
-        central = new BluetoothCentralManager(this, centralManagerCallback, new Handler(Looper.getMainLooper()));
+        central = new BluetoothCentralManager(this.applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
         
         flutter_channel.setMessageHandler((message, reply) -> {
             Map<String, Object> arguments = (Map<String, Object>) message;

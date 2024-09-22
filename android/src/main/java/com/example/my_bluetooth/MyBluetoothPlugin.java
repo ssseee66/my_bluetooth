@@ -129,7 +129,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                     
                                     boolean notity = device.setNotify(true);
                                     hh += notity;
-                                    maps.put("epcApperOverMessage", hh);
+                                    maps.put("epcAppearOverMessage", hh);
                                     flutter_channel.send(maps);
                                 }
                             });

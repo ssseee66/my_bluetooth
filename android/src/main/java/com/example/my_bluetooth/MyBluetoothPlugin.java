@@ -31,8 +31,6 @@ import java.util.Map;
 
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
-import io.flutter.embedding.engine.plugins.activity.ActivityAware;
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -41,7 +39,7 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
-public class MyBluetoothPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
+public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
     private static final String FLUTTER_TO_ANDROID_CHANNEL = "flutter_and_android";
     private BasicMessageChannel<Object> flutter_channel;
     private Context applicationContext;
@@ -50,6 +48,7 @@ public class MyBluetoothPlugin implements FlutterPlugin, ActivityAware, MethodCa
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        applicationContext = flutterPluginBinding.getApplicationContext();
         flutter_channel = new BasicMessageChannel<>(
                 flutterPluginBinding.getBinaryMessenger(),
                 FLUTTER_TO_ANDROID_CHANNEL,
@@ -249,23 +248,4 @@ public class MyBluetoothPlugin implements FlutterPlugin, ActivityAware, MethodCa
     }
     
     
-    @Override
-    public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
-        applicationContext = activityPluginBinding.getActivity().getApplicationContext();
-    }
-    
-    @Override
-    public void onDetachedFromActivityForConfigChanges() {
-    
-    }
-    
-    @Override
-    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding activityPluginBinding) {
-    
-    }
-    
-    @Override
-    public void onDetachedFromActivity() {
-    
-    }
 }

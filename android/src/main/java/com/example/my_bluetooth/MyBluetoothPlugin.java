@@ -31,6 +31,8 @@ import java.util.Map;
 
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -39,7 +41,7 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
-public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
+public class MyBluetoothPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
     private static final String FLUTTER_TO_ANDROID_CHANNEL = "flutter_and_android";
     private BasicMessageChannel<Object> flutter_channel;
     private Context applicationContext;
@@ -48,7 +50,6 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        applicationContext = flutterPluginBinding.getApplicationContext();
         flutter_channel = new BasicMessageChannel<>(
                 flutterPluginBinding.getBinaryMessenger(),
                 FLUTTER_TO_ANDROID_CHANNEL,
@@ -131,7 +132,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                 flutter_channel.send(map);
             }
         };
-        central = new BluetoothCentralManager(this.applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
+        central = new BluetoothCentralManager(applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
         
         flutter_channel.setMessageHandler((message, reply) -> {
             Map<String, Object> arguments = (Map<String, Object>) message;
@@ -248,4 +249,23 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
     }
     
     
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
+        applicationContext = activityPluginBinding.getActivity().getApplicationContext();
+    }
+    
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+    
+    }
+    
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding activityPluginBinding) {
+    
+    }
+    
+    @Override
+    public void onDetachedFromActivity() {
+    
+    }
 }

@@ -122,7 +122,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                         if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
                                             device.findCharacteristic(service);
                                             uuids.add(service.getUuid().toString());
-                                            hh = "epcAppearOverMessage", "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + service.getCharacteristics();
+                                            hh = "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + service.getCharacteristics();
                                         }
                                         
                                     }

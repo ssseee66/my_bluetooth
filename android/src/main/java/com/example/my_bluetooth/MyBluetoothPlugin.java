@@ -50,6 +50,20 @@ public class MyBluetoothPlugin implements FlutterPlugin {
         );
         List<String> message_list = new LinkedList<>();
         List<BluetoothPeripheral> peripherals = new LinkedList<>();
+        client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+            if (logBaseEpcInfo.getResult() == 0) {
+                Log.e("epc", logBaseEpcInfo.getEpc());
+                Map<String, Object> maps = new HashMap<>();
+                maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                flutter_channel.send(maps);
+            }
+        };
+        client.onTagEpcOver = (s, logBaseEpcOver) -> {
+            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+            Map<String, Object> maps = new HashMap<>();
+            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+            flutter_channel.send(maps);
+        };
         BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
             @Override
             public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {

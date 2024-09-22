@@ -60,40 +60,40 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
         BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
             @Override
             public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
-                // if (!peripherals.contains(peripheral)) {
-                //     peripherals.add(peripheral);
-                //     String peripheral_name = peripheral.getName();
-                //     String peripheral_address = peripheral.getAddress();
-                //     message_list.add(peripheral_name + "#" + peripheral_address);
-                //     Map<String, Object> map = new HashMap<>();
-                //     map.put("bluetooth_list", message_list);
-                //     flutter_channel.send(map);
-                // }
-                if (!peripheral.getName().isEmpty() && peripheral.getName().equals("HC-RFID")) {
-                    central.stopScan();
-    
-                    BleDevice bleDevice = new BleDevice(central, peripheral);
-                    //指定serviceUUID,不需要再setServiceCallback()筛选确定可用BluetoothGattCharacteristic
-                    //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-    //                bleDevice.setServiceUuid("0000fff0-0000-1000-8000-00805f9b34fb");
-    
-                    //未指定serviceUUID,需要自己筛选可用BluetoothGattCharacteristic
-                    bleDevice.setServiceCallback(new BleServiceCallback() {
-                        @Override
-                        public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-                            List<BluetoothGattService> services = peripheral.getServices();
-                            for (BluetoothGattService service : services) {
-                                //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
-                                    bleDevice.findCharacteristic(service);
-                                }
-                            }
-                            bleDevice.setNotify(true);
-                        }
-                    });
-                    client.openBleDevice(bleDevice);
-                    
+                if (!peripherals.contains(peripheral)) {
+                    peripherals.add(peripheral);
+                    String peripheral_name = peripheral.getName();
+                    String peripheral_address = peripheral.getAddress();
+                    message_list.add(peripheral_name + "#" + peripheral_address);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("bluetooth_list", message_list);
+                    flutter_channel.send(map);
                 }
+    //             if (!peripheral.getName().isEmpty() && peripheral.getName().equals("HC-RFID")) {
+    //                 central.stopScan();
+    
+    //                 BleDevice bleDevice = new BleDevice(central, peripheral);
+    //                 //指定serviceUUID,不需要再setServiceCallback()筛选确定可用BluetoothGattCharacteristic
+    //                 //示例"0000fff0-0000-1000-8000-00805f9b34fb"
+    // //                bleDevice.setServiceUuid("0000fff0-0000-1000-8000-00805f9b34fb");
+    
+    //                 //未指定serviceUUID,需要自己筛选可用BluetoothGattCharacteristic
+    //                 bleDevice.setServiceCallback(new BleServiceCallback() {
+    //                     @Override
+    //                     public void onServicesDiscovered(BluetoothPeripheral peripheral) {
+    //                         List<BluetoothGattService> services = peripheral.getServices();
+    //                         for (BluetoothGattService service : services) {
+    //                             //示例"0000fff0-0000-1000-8000-00805f9b34fb"
+    //                             if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
+    //                                 bleDevice.findCharacteristic(service);
+    //                             }
+    //                         }
+    //                         bleDevice.setNotify(true);
+    //                     }
+    //                 });
+    //                 client.openBleDevice(bleDevice);
+                    
+    //             }
             }
             @Override
             public void onConnectedPeripheral(BluetoothPeripheral peripheral) {

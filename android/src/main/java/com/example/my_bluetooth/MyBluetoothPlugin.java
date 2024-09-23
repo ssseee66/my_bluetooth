@@ -139,11 +139,8 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                             if (CharacteristicProperty.isWRITE(gattCharacteristic.getProperties())) {
                                                 hasWriter = true;
                                             }
-                                            if (CharacteristicProperty.isNOTIFY(gattCharacteristic.getProperties())) {
-                                                hasnotify = true;
-                                            }
                                         }
-                                        if (hasnotify && hasRead && hasWriter) {
+                                        if (hasRead && hasWriter) {
                                             hasall = true;
                                             allservice = service;
                                         }

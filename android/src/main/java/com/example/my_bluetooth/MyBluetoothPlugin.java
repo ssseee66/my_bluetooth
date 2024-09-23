@@ -78,6 +78,10 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     Map<String, String> map = new HashMap<>();
                     map.put("epcAppearMesage", "服务连接关闭");
                     flutter_channel.send(map);
+                } else {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("epcAppearMesage", "服务连接错误:" + newState);
+                    flutter_channel.send(map);
                 }
             }
             @Override

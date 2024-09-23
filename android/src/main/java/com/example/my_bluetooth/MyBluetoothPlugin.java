@@ -1,19 +1,18 @@
 package com.example.my_bluetooth;
 
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import com.gg.reader.api.dal.GClient;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
-import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
 import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
@@ -24,14 +23,12 @@ import com.peripheral.ble.HciStatus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BasicMessageChannel;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
@@ -77,20 +74,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> map = new HashMap<>();
                 client.setSendHeartBeat(true);
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
-                client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-                    if (logBaseEpcInfo.getResult() == 0) {
-                        Log.e("epc", logBaseEpcInfo.getEpc());
-                        Map<String, Object> maps = new HashMap<>();
-                        maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                        flutter_channel.send(maps);
-                    }
-                };
-                client.onTagEpcOver = (s, logBaseEpcOver) -> {
-                    Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-                    Map<String, Object> maps = new HashMap<>();
-                    maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-                    flutter_channel.send(maps);
-                };
                 flutter_channel.send(map);
             }
             @Override
@@ -108,6 +91,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 flutter_channel.send(map);
             }
         };
+        subscriberHandler();
         central = new BluetoothCentralManager(applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
         
         flutter_channel.setMessageHandler((message, reply) -> {
@@ -124,21 +108,21 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
-                            central.stopScan();
                             BleDevice device = new BleDevice(central, peripheral);
-                            device.setServiceCallback(new BleServiceCallback() {
-                                @Override
-                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-                                    List<BluetoothGattService> services = peripheral.getServices();
-                                    for (BluetoothGattService service : services) {
-                                        //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        if (service.getUuid().toString().equals(SERVER_UUID.toString()) ) {
-                                            device.findCharacteristic(service);
-                                        }
-                                    }
-                                    device.setNotify(true);
-                                }
-                            });
+                            device.setServiceUuid(SERVER_UUID.toString());
+//                            device.setServiceCallback(new BleServiceCallback() {
+//                                @Override
+//                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {
+//                                    List<BluetoothGattService> services = peripheral.getServices();
+//                                    for (BluetoothGattService service : services) {
+//                                        //示例"0000fff0-0000-1000-8000-00805f9b34fb"
+//                                        if (service.getUuid().toString().equals(SERVER_UUID.toString()) ) {
+//                                            device.findCharacteristic(service);
+//                                        }
+//                                    }
+//                                    device.setNotify(true);
+//                                }
+//                            });
                             client.openBleDevice(device);
                         }
                     }
@@ -194,6 +178,23 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
 
+    }
+    
+    private void subscriberHandler() {
+        client.onTagEpcLog = (s, logBaseEpcInfo) -> {
+            if (logBaseEpcInfo.getResult() == 0) {
+                Log.e("epc", logBaseEpcInfo.getEpc());
+                Map<String, Object> maps = new HashMap<>();
+                maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
+                flutter_channel.send(maps);
+            }
+        };
+        client.onTagEpcOver = (s, logBaseEpcOver) -> {
+            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+            Map<String, Object> maps = new HashMap<>();
+            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+            flutter_channel.send(maps);
+        };
     }
     
 }

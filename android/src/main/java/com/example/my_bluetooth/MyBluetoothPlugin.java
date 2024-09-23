@@ -123,7 +123,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                         if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
                                             device.findCharacteristic(service);
                                             uuids.add(service.getUuid().toString());
-                                            hh = "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + "reader:" + device.getReadCharacteristic() + service.getCharacteristics();
+                                            hh = "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + "reader:" + device.getReadCharacteristic() + "writer:" + device.getWriteCharacteristic() + service.getCharacteristics();
                                         }
                                         
                                     }
@@ -163,7 +163,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                             flutter_channel.send(map);
                         } else {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                            map.put("readerOperationMessage", "读卡操作失败：" +client.getName()+ msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
                             flutter_channel.send(map);
                         }
                     } 

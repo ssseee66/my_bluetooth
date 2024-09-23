@@ -123,6 +123,15 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 client.setSendHeartBeat(true);
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
                 flutter_channel.send(map);
+                adapter = BluetoothAdapter.getDefaultAdapter();
+                BluetoothDevice device = adapter.getRemoteDevice(peripheral.getAddress());
+                if (Build.VERSION.SDK_INT >= 26) {
+                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
+                } else if (Build.VERSION.SDK_INT >= 23) {
+                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
+                } else {
+                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
+                }
             }
             @Override
             public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {
@@ -156,15 +165,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
-                            adapter = BluetoothAdapter.getDefaultAdapter();
-                            BluetoothDevice device = adapter.getRemoteDevice(bluetooth_address);
-                            if (Build.VERSION.SDK_INT >= 26) {
-                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
-                            } else if (Build.VERSION.SDK_INT >= 23) {
-                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
-                            } else {
-                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
-                            }
+                            BleDevice bleDevice = new BleDevice(central, peripheral);
+                            client.openBleDevice(bleDevice);
 //                            device.setServiceCallback(new BleServiceCallback() {
 //                                @Override
 //                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {

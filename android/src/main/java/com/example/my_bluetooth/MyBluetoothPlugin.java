@@ -149,25 +149,29 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("startReader")) {
                     if ((boolean) arguments.get("startReader")) {
-                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
-                        msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
-                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
-                        client.sendSynMsg(msgBaseInventoryEpc);
-                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                        MsgBaseInventoryEpc msg = new MsgBaseInventoryEpc();
+                        msg.setAntennaEnable(EnumG.AntennaNo_1);
+                        msg.setInventoryMode(EnumG.InventoryMode_Inventory);
+                        Map<String, Object> maps = new HashMap<>();
+                        maps.put("epcAppearMessage", "client:" + client.getName());
+                        flutter_channel.send(maps);
+                        client.sendSynMsg(msg);
+                        if (msg.getRtCode() == 0) {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);
                         } else {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                            map.put("readerOperationMessage", "读卡操作失败：" + msg.getRtCode() + msg.getRtMsg());
                             flutter_channel.send(map);
                         }
+                        
                     } 
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
-                        MsgBaseStop msgBaseStop = new MsgBaseStop();
-                        client.sendSynMsg(msgBaseStop);
-                        if (0x00 == msgBaseStop.getRtCode()) {
+                        MsgBaseStop msg = new MsgBaseStop();
+                        client.sendSynMsg(msg);
+                        if (msg.getRtCode() == 0) {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作成功");
                             flutter_channel.send(map);

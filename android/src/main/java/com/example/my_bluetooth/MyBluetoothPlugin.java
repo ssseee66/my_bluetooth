@@ -124,6 +124,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         Map<String, Object> map = new HashMap<>();
                         map.put("connectMessage", "开始连接成功");
                         flutter_channel.send(map);
+                        client.setSendHeartBeat(true);
                     }
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {

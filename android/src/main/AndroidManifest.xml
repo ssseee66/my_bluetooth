@@ -16,8 +16,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <!--  需要能够连接到配对的蓝牙设备  -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <!--  允许应用程序在没有用户交互的情况下配对蓝牙设备，并允许或禁止电话簿访问或消息访问  -->
-    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"  />
+<!--    &lt;!&ndash;  允许应用程序在没有用户交互的情况下配对蓝牙设备，并允许或禁止电话簿访问或消息访问  &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />-->
     <!--  需要能够向附近的蓝牙设备做广告 Android 12 -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
 

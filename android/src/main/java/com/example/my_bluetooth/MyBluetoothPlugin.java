@@ -120,7 +120,11 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-                    bleBluetoothClient.open(bluetooth_address, 1);
+                    if (client.openBleBluetooth(bluetooth_address, 0, bleBluetoothClient)) {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("connectMessage", "开始连接成功");
+                        flutter_channel.send(map);
+                    }
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
                         bleBluetoothClient.stopScanBluetooth();

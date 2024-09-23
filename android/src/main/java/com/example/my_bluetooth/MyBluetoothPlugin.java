@@ -125,7 +125,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                         for (BluetoothGattService service1 : services) {
                                             uuids.add(service1.getUuid().toString());
                                         }
-                                        if (service.getUuid().toString().equals("00001101-0000-1000-8000-00805F9B34FB")) {
+                                        if (service.getUuid().toString().equals("00001800-0000-1000-8000-00805F9B34FB")) {
                                             device.findCharacteristic(service);
                                             uuids.add(service.getUuid().toString());
                                             boolean hasRead = false;

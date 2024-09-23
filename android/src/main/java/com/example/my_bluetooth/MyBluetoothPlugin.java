@@ -1,5 +1,6 @@
 package com.example.my_bluetooth;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -21,6 +22,7 @@ import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
 import com.peripheral.ble.BluetoothCentralManagerCallback;
 import com.peripheral.ble.BluetoothPeripheral;
+import com.peripheral.ble.CharacteristicProperty;
 import com.peripheral.ble.HciStatus;
 
 import java.util.HashMap;
@@ -123,11 +125,15 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                         if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
                                             device.findCharacteristic(service);
                                             uuids.add(service.getUuid().toString());
-                                            hh = "服务>>>" + uuids + "characteristic:" + device.getNotifyCharacteristic() + "reader:" + device.getReadCharacteristic() + "writer:" + device.getWriteCharacteristic() + service.getCharacteristics();
+                                            boolean hasRead = false;
+                                            for (BluetoothGattCharacteristic gattCharacteristic : service.getCharacteristics()) {
+                                                if (CharacteristicProperty.isREAD(gattCharacteristic.getProperties())) {
+                                                    hasRead = true;
+                                                }
+                                            }
+                                            hh = "服务>>>" + uuids + "hasRead:" + hasRead + "characteristic:" + device.getNotifyCharacteristic() + "reader:" + device.getReadCharacteristic() + "writer:" + device.getWriteCharacteristic() + service.getCharacteristics();
                                         }
-                                        
                                     }
-                                    
                                     boolean notity = device.setNotify(true);
                                     hh += notity;
                                     maps.put("epcAppearOverMessage", hh);

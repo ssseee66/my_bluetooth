@@ -123,29 +123,15 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                     boolean hasall = false;
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        // 49535343-fe7d-4ae5-8fa9-9fafd205e455
-//                                        if (service.getUuid().toString().equals("00001801-0000-1000-8000-00805f9b34fb")) {
-//                                            device.findCharacteristic(service);
-//                                            uuids.add(service.getUuid().toString());
-//                                        }
-                                        boolean hasRead = false;
-                                        boolean hasWriter = false;
-                                        boolean hasnotify = false;
-                                        BluetoothGattService allservice = null;
-                                        for (BluetoothGattCharacteristic gattCharacteristic : service.getCharacteristics()) {
-                                            if (CharacteristicProperty.isREAD(gattCharacteristic.getProperties())) {
-                                                hasRead = true;
-                                            }
-                                            if (CharacteristicProperty.isWRITE(gattCharacteristic.getProperties())) {
-                                                hasWriter = true;
-                                            }
+//                                         49535343-fe7d-4ae5-8fa9-9fafd205e455
+                                        if (service.getUuid().toString().equals("0000180a-0000-1000-8000-00805f9b34fb")) {
+                                            device.findCharacteristic(service);
+                                            uuids.add(service.getUuid().toString());
+                                            hh = "服务>>>"  + service.getUuid().toString() + uuids +
+                                                    "characteristic:" + device.getNotifyCharacteristic() +
+                                                    "reader:" + device.getReadCharacteristic() + "writer:" +
+                                                    device.getWriteCharacteristic() + service.getCharacteristics();
                                         }
-                                        if (hasRead) {
-                                            hasall = true;
-                                            hh = "服务>>>" + "hasall:" + hasall + service.getUuid().toString() + uuids;
-                                        }
-//                                            "hasRead:" + hasRead + "characteristic:" + device.getNotifyCharacteristic() + "reader:" + device.getReadCharacteristic() + "writer:" + device.getWriteCharacteristic() + service.getCharacteristics();
-                                    
                                     }
                                     boolean notity = device.setNotify(true);
                                     hh += notity;

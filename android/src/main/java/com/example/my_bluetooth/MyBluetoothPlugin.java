@@ -140,7 +140,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                                 hasWriter = true;
                                             }
                                         }
-                                        if (hasRead && hasWriter) {
+                                        if (hasRead) {
                                             hasall = true;
                                             hh = "服务>>>" + "hasall:" + hasall + service.getUuid().toString() + uuids;
                                         }

@@ -123,22 +123,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 client.setSendHeartBeat(true);
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
                 flutter_channel.send(map);
-                adapter = BluetoothAdapter.getDefaultAdapter();
-                BluetoothDevice device = adapter.getRemoteDevice(peripheral.getAddress());
-                if (Build.VERSION.SDK_INT >= 26) {
-                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
-                } else if (Build.VERSION.SDK_INT >= 23) {
-                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
-                } else {
-                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
-                }
-                bluetoothGatt.connect();
-                Map<String, Object> maps = new HashMap<>();
-                maps.put("epcAppearMessage",
-                        "bluetoothGatt:" + bluetoothGatt.toString() +
-                                "writerCharacteristic:" + mWriteCharacteristic.toString() +
-                                "notifCharacteristic:" + mNotifyCharacteristic.toString() +
-                                "device:" + device.toString());
             }
             @Override
             public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {
@@ -172,8 +156,28 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
-                            BleDevice bleDevice = new BleDevice(central, peripheral);
-                            client.openBleDevice(bleDevice);
+                            adapter = BluetoothAdapter.getDefaultAdapter();
+                            BluetoothDevice device = adapter.getRemoteDevice(peripheral.getAddress());
+                            if (Build.VERSION.SDK_INT >= 26) {
+                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
+                            } else if (Build.VERSION.SDK_INT >= 23) {
+                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
+                            } else {
+                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
+                            }
+                            if (bluetoothGatt != null) {
+                                Map<String, Object> maps = new HashMap<>();
+                                maps.put("epcAppearMessage",
+                                        "bluetoothGatt:" + bluetoothGatt.toString() +
+                                                "writerCharacteristic:" + mWriteCharacteristic.toString() +
+                                                "notifCharacteristic:" + mNotifyCharacteristic.toString() +
+                                                "device:" + device.toString());
+                            } else {
+                                Map<String, Object> maps = new HashMap<>();
+                                maps.put("epcAppearMessage",
+                                        "失败");
+                                flutter_channel.send(maps);
+                            }
 //                            device.setServiceCallback(new BleServiceCallback() {
 //                                @Override
 //                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {

@@ -45,6 +45,44 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
     private Context applicationContext;
     private GClient client = new GClient();
     private BluetoothCentralManager central;
+    List<String> message_list = new LinkedList<>();
+    List<BluetoothPeripheral> peripherals = new LinkedList<>();
+    
+    BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
+        @Override
+        public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
+            if (!peripherals.contains(peripheral)) {
+                peripherals.add(peripheral);
+                String peripheral_name = peripheral.getName();
+                String peripheral_address = peripheral.getAddress();
+                message_list.add(peripheral_name + "#" + peripheral_address);
+                Map<String, Object> map = new HashMap<>();
+                map.put("bluetooth_list", message_list);
+                flutter_channel.send(map);
+            }
+        }
+        @Override
+        public void onConnectedPeripheral(BluetoothPeripheral peripheral) {
+            Log.e(peripheral.getName(), "连接成功");
+            Map<String, Object> map = new HashMap<>();
+            map.put("connectMessage", "连接成功>>>" + peripheral.getName());
+            flutter_channel.send(map);
+        }
+        @Override
+        public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {
+            Log.e(peripheral.getName(), "连接失败");
+            Map<String, Object> map = new HashMap<>();
+            map.put("connectMessage", "连接失败>>>" + peripheral.getName());
+            flutter_channel.send(map);
+        }
+        @Override
+        public void onDisconnectedPeripheral(BluetoothPeripheral peripheral, HciStatus status) {
+            Log.e(peripheral.getName(), "断开连接");
+            Map<String, Object> map = new HashMap<>();
+            map.put("connectMessage", "断开连接>>>" + peripheral.getName());
+            flutter_channel.send(map);
+        }
+    };
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -54,44 +92,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                 FLUTTER_TO_ANDROID_CHANNEL,
                 StandardMessageCodec.INSTANCE
         );
-        List<String> message_list = new LinkedList<>();
-        List<BluetoothPeripheral> peripherals = new LinkedList<>();
         subscriberHandler();
-        BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
-            @Override
-            public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
-                if (!peripherals.contains(peripheral)) {
-                    peripherals.add(peripheral);
-                    String peripheral_name = peripheral.getName();
-                    String peripheral_address = peripheral.getAddress();
-                    message_list.add(peripheral_name + "#" + peripheral_address);
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("bluetooth_list", message_list);
-                    flutter_channel.send(map);
-                }
-            }
-            @Override
-            public void onConnectedPeripheral(BluetoothPeripheral peripheral) {
-                Log.e(peripheral.getName(), "连接成功");
-                Map<String, Object> map = new HashMap<>();
-                map.put("connectMessage", "连接成功>>>" + peripheral.getName());
-                flutter_channel.send(map);
-            }
-            @Override
-            public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {
-                Log.e(peripheral.getName(), "连接失败");
-                Map<String, Object> map = new HashMap<>();
-                map.put("connectMessage", "连接失败>>>" + peripheral.getName());
-                flutter_channel.send(map);
-            }
-            @Override
-            public void onDisconnectedPeripheral(BluetoothPeripheral peripheral, HciStatus status) {
-                Log.e(peripheral.getName(), "断开连接");
-                Map<String, Object> map = new HashMap<>();
-                map.put("connectMessage", "断开连接>>>" + peripheral.getName());
-                flutter_channel.send(map);
-            }
-        };
         central = new BluetoothCentralManager(applicationContext, centralManagerCallback, new Handler(Looper.getMainLooper()));
         
         flutter_channel.setMessageHandler((message, reply) -> {
@@ -158,7 +159,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (msgBaseInventoryEpc.getRtCode() == 0) {
                             Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMssagee", "读卡操作成功");
+                            map.put("readerOperationMssagee", "读卡操作成功" + client.getName());
                             flutter_channel.send(map);
                         } else {
                             Map<String, String> map = new HashMap<>();
@@ -197,7 +198,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     
     }
-
+    
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
             if (logBaseEpcInfo.getResult() == 0) {

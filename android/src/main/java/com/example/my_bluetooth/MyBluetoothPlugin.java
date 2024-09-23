@@ -132,6 +132,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 } else {
                     bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
                 }
+                bluetoothGatt.connect();
+                Map<String, Object> maps = new HashMap<>();
+                maps.put("epcAppearMessage",
+                        "bluetoothGatt:" + bluetoothGatt.toString() +
+                                "writerCharacteristic:" + mWriteCharacteristic.toString() +
+                                "notifCharacteristic:" + mNotifyCharacteristic.toString() +
+                                "device:" + device.toString());
             }
             @Override
             public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {

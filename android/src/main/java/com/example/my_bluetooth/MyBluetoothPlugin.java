@@ -99,10 +99,10 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             if (arguments != null) {
                 if (arguments.containsKey("startScanner")) {
                     if ((boolean) arguments.get("startScanner")) {
-                        central.scanForPeripherals();
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
+                        central.scanForPeripherals();
                     }
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
@@ -128,17 +128,17 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
-                        central.stopScan();
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "停止扫描");
                         flutter_channel.send(map);
+                        central.stopScan();
                     }
                 } else if (arguments.containsKey("close_connect")) {
                     if ((boolean) arguments.get("close_connect")) {
-                        client.close();
                         Map<String, String> map = new HashMap<>();
                         map.put("connectMessage", "连接已关闭");
                         flutter_channel.send(map);
+                        client.close();
                     }
                 } else if (arguments.containsKey("startReader")) {
                     if ((boolean) arguments.get("startReader")) {

@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.example.my_bluetooth">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.my_bluetooth">
     <!-- <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"  />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
@@ -16,8 +17,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <!--  需要能够连接到配对的蓝牙设备  -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-<!--    &lt;!&ndash;  允许应用程序在没有用户交互的情况下配对蓝牙设备，并允许或禁止电话簿访问或消息访问  &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />-->
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"
+        tools:ignore="ProtectedPermissions" />
     <!--  需要能够向附近的蓝牙设备做广告 Android 12 -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
 

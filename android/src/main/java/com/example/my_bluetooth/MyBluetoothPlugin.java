@@ -41,7 +41,7 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
-public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
+public class MyBluetoothPlugin implements FlutterPlugin{
     private static final String FLUTTER_TO_ANDROID_CHANNEL = "flutter_and_android";
     private BasicMessageChannel<Object> flutter_channel;
     private Context applicationContext;
@@ -111,7 +111,6 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
-                            central.stopScan();
                             BleDevice device = new BleDevice(central, peripheral);
                             device.setServiceCallback(new BleServiceCallback() {
                                 @Override
@@ -189,14 +188,6 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                 }
             }
         });
-    }
-    @Override
-    public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        if (call.method.equals("getPlatformVersion")) {
-            result.success("Android " + android.os.Build.VERSION.RELEASE);
-        } else {
-            result.notImplemented();
-        }
     }
     
     @Override

@@ -1,8 +1,15 @@
 package com.example.my_bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -43,8 +50,11 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private UUID NOTIFY_UUID = UUID.fromString("0000fff1-0000-1000-8000-00805F9B34FB");
     private UUID WRITE_UUID = UUID.fromString("0000fff2-0000-1000-8000-00805F9B34FB");
     private static final UUID DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-    
+    private BluetoothGatt bluetoothGatt;
     private BluetoothGattService bluetoothService;
+    private BluetoothGattCharacteristic mWriteCharacteristic;
+    private BluetoothGattCharacteristic mNotifyCharacteristic;
+    private BluetoothAdapter adapter;
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         applicationContext = flutterPluginBinding.getApplicationContext();
@@ -55,6 +65,44 @@ public class MyBluetoothPlugin implements FlutterPlugin {
         );
         List<String> message_list = new LinkedList<>();
         List<BluetoothPeripheral> peripherals = new LinkedList<>();
+        
+        BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+            @Override
+            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                if (newState == BluetoothGatt.STATE_CONNECTED) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("epcAppearMesage", "服务连接成功");
+                    flutter_channel.send(map);
+                    gatt.discoverServices();
+                } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("epcAppearMesage", "服务连接关闭");
+                    flutter_channel.send(map);
+                }
+            }
+            @Override
+            public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("epcAppearMesage", "通讯服务连接成功");
+                    flutter_channel.send(map);
+                    enableTxNotification();
+                } else {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("epcAppearMesage", "通讯服务连接失败");
+                    flutter_channel.send(map);
+                }
+            }
+            @Override
+            public void onCharacteristicRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value, int status) {
+                super.onCharacteristicRead(gatt, characteristic, value, status);
+            }
+            
+            @Override
+            public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                super.onCharacteristicWrite(gatt, characteristic, status);
+            }
+        };
         BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
             @Override
             public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
@@ -108,8 +156,15 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
-                            BleDevice device = new BleDevice(central, peripheral);
-                            device.setServiceUuid(SERVER_UUID.toString());
+                            adapter = BluetoothAdapter.getDefaultAdapter();
+                            BluetoothDevice device = adapter.getRemoteDevice(bluetooth_address);
+                            if (Build.VERSION.SDK_INT >= 26) {
+                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
+                            } else if (Build.VERSION.SDK_INT >= 23) {
+                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
+                            } else {
+                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
+                            }
 //                            device.setServiceCallback(new BleServiceCallback() {
 //                                @Override
 //                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {
@@ -123,7 +178,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
 //                                    device.setNotify(true);
 //                                }
 //                            });
-                            client.openBleDevice(device);
+//                            client.openBleDevice(device);
                         }
                     }
                 } else if (arguments.containsKey("stopScanner")) {
@@ -195,6 +250,22 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
             flutter_channel.send(maps);
         };
+    }
+    public void enableTxNotification() {
+        BluetoothGattService service = bluetoothGatt.getService(SERVER_UUID);
+        mWriteCharacteristic = service.getCharacteristic(WRITE_UUID);
+        mNotifyCharacteristic = service.getCharacteristic(NOTIFY_UUID);
+        bluetoothGatt.setCharacteristicNotification(mNotifyCharacteristic, true);
+        BluetoothGattDescriptor mDescriptor = mNotifyCharacteristic.getDescriptor(DESCRIPTOR);
+        if (mDescriptor != null) {
+            if ((mNotifyCharacteristic.getProperties() & 16) > 0) {
+                mDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            } else if ((mNotifyCharacteristic.getProperties() & 32) > 0) {
+                mDescriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+            }
+        }
+        
+        this.bluetoothGatt.writeDescriptor(mDescriptor);
     }
     
 }

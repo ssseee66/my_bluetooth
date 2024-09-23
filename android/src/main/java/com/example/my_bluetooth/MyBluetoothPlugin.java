@@ -133,6 +133,7 @@ public class MyBluetoothPlugin implements FlutterPlugin,  MethodCallHandler {
                                                     "writer:" + device.getWriteCharacteristic() + service.getCharacteristics();
                                         }
                                     }
+                                    device.open("kai");
                                     boolean notity = device.setNotify(true);
                                     hh += notity;
                                     maps.put("epcAppearOverMessage", hh + device.getNotifyCharacteristic());

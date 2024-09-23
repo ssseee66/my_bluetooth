@@ -172,6 +172,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                                 "writerCharacteristic:" + mWriteCharacteristic.toString() +
                                                 "notifCharacteristic:" + mNotifyCharacteristic.toString() +
                                                 "device:" + device.toString());
+                                flutter_channel.send(maps);
                             } else {
                                 Map<String, Object> maps = new HashMap<>();
                                 maps.put("epcAppearMessage",

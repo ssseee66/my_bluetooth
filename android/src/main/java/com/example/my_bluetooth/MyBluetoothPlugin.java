@@ -1,5 +1,6 @@
 package com.example.my_bluetooth;
 
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -26,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BasicMessageChannel;
@@ -40,6 +42,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private GClient client = new GClient();
     private BluetoothCentralManager central;
     
+    private UUID SERVER_UUID = UUID.fromString("0000fff0-0000-1000-8000-00805F9B34FB");
+    private UUID NOTIFY_UUID = UUID.fromString("0000fff1-0000-1000-8000-00805F9B34FB");
+    private UUID WRITE_UUID = UUID.fromString("0000fff2-0000-1000-8000-00805F9B34FB");
+    private static final UUID DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    
+    private BluetoothGattService bluetoothService;
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         applicationContext = flutterPluginBinding.getApplicationContext();
@@ -124,7 +132,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                     List<BluetoothGattService> services = peripheral.getServices();
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
+                                        if (service.getUuid().toString().equals(SERVER_UUID.toString()) ) {
                                             device.findCharacteristic(service);
                                         }
                                     }
@@ -185,8 +193,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    
+
     }
-    
     
 }

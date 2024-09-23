@@ -132,6 +132,7 @@ public class MyBluetoothPlugin implements FlutterPlugin{
                                                     "writer:" + device.getWriteCharacteristic() + service.getCharacteristics();
                                         }
                                     }
+                                    device.open("sks");
                                     boolean notity = device.setNotify(true);
                                     hh += notity;
                                     maps.put("epcAppearOverMessage", hh + device.getNotifyCharacteristic());

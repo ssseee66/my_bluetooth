@@ -35,12 +35,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private static final String FLUTTER_TO_ANDROID_CHANNEL = "flutter_and_android";
     private BasicMessageChannel<Object> flutter_channel;
     private Context applicationContext;
-    private GClient client = new GClient();
+    private GClient client;
     private BluetoothCentralManager central;
     
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         applicationContext = flutterPluginBinding.getApplicationContext();
+        client = new GClient();
         flutter_channel = new BasicMessageChannel<>(
                 flutterPluginBinding.getBinaryMessenger(),
                 FLUTTER_TO_ANDROID_CHANNEL,
@@ -59,6 +60,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     Map<String, Object> map = new HashMap<>();
                     map.put("bluetooth_list", message_list);
                     flutter_channel.send(map);
+                    Log.e("线程数量：", "数量:" + Thread.activeCount());
+                    Log.e("当前线程", Thread.currentThread().getName());
                 }
             }
             @Override
@@ -67,6 +70,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "连接成功>>>" + peripheral.getName());
                 flutter_channel.send(map);
+                Log.e("线程数量：", "数量:" + Thread.activeCount());
+                Log.e("当前线程", Thread.currentThread().getName());
             }
             @Override
             public void onConnectionFailed(BluetoothPeripheral peripheral, HciStatus status) {
@@ -74,6 +79,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "连接失败>>>" + peripheral.getName());
                 flutter_channel.send(map);
+                Log.e("线程数量：", "数量:" + Thread.activeCount());
+                Log.e("当前线程", Thread.currentThread().getName());
             }
             @Override
             public void onDisconnectedPeripheral(BluetoothPeripheral peripheral, HciStatus status) {
@@ -81,6 +88,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> map = new HashMap<>();
                 map.put("connectMessage", "断开连接>>>" + peripheral.getName());
                 flutter_channel.send(map);
+                Log.e("线程数量：", "数量:" + Thread.activeCount());
+                Log.e("当前线程", Thread.currentThread().getName());
             }
         };
         subscriberHandler();
@@ -97,6 +106,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
+                        Log.e("线程数量：", "数量:" + Thread.activeCount());
+                        Log.e("当前线程", Thread.currentThread().getName());
                     } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
@@ -120,12 +131,16 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             client.openBleDevice(device);
                         }
                     }
+                    Log.e("线程数量：", "数量:" + Thread.activeCount());
+                    Log.e("当前线程", Thread.currentThread().getName());
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "停止扫描");
                         flutter_channel.send(map);
                         central.stopScan();
+                        Log.e("线程数量：", "数量:" + Thread.activeCount());
+                        Log.e("当前线程", Thread.currentThread().getName());
                     }
                 } else if (arguments.containsKey("close_connect")) {
                     if ((boolean) arguments.get("close_connect")) {
@@ -133,6 +148,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         map.put("connectMessage", "连接已关闭");
                         flutter_channel.send(map);
                         client.close();
+                        Log.e("线程数量：", "数量:" + Thread.activeCount());
+                        Log.e("当前线程", Thread.currentThread().getName());
                     }
                 } else if (arguments.containsKey("startReader")) {
                     if ((boolean) arguments.get("startReader")) {
@@ -145,11 +162,15 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);
+                            Log.e("线程数量：", "数量:" + Thread.activeCount());
+                            Log.e("当前线程", Thread.currentThread().getName());
                         } else {
                             Log.e("读卡操作", "操作失败");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
                             flutter_channel.send(map);
+                            Log.e("线程数量：", "数量:" + Thread.activeCount());
+                            Log.e("当前线程", Thread.currentThread().getName());
                         }
                     }
                 } else if (arguments.containsKey("stopReader")) {
@@ -160,10 +181,14 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作成功");
                             flutter_channel.send(map);
+                            Log.e("线程数量：", "数量:" + Thread.activeCount());
+                            Log.e("当前线程", Thread.currentThread().getName());
                         } else {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作失败");
                             flutter_channel.send(map);
+                            Log.e("线程数量：", "数量:" + Thread.activeCount());
+                            Log.e("当前线程", Thread.currentThread().getName());
                         }
                     }
                 }

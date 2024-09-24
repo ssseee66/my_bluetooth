@@ -115,6 +115,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
                             central.stopScan();
                             BleDevice device = new BleDevice(central, peripheral);
+                            Log.e("device.peripheral", "peripheral:" + device.getmPeripheral());
                             device.setServiceCallback(new BleServiceCallback() {
                                 @Override
                                 public void onServicesDiscovered(BluetoothPeripheral peripheral) {

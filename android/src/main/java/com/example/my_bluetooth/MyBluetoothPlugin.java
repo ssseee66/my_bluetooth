@@ -141,10 +141,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                            Log.e("读卡操作", "操作成功");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);
                         } else {
+                            Log.e("读卡操作", "操作失败");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
                             flutter_channel.send(map);

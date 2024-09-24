@@ -179,7 +179,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
             if (logBaseEpcInfo.getResult() == 0) {
-                Log.e("epc", logBaseEpcInfo.getEpc());
+                Log.e("readerEPC", logBaseEpcInfo.getEpc());
                 Map<String, Object> maps = new HashMap<>();
                 maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
                 flutter_channel.send(maps);

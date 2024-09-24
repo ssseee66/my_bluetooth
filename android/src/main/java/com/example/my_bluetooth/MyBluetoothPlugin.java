@@ -10,6 +10,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.gg.reader.api.dal.GClient;
+import com.gg.reader.api.protocol.gx.EnumG;
+import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
+import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
@@ -187,6 +190,5 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             flutter_channel.send(maps);
         };
     }
-    
-    
+
 }

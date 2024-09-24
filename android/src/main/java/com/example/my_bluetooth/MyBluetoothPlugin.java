@@ -182,7 +182,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> maps = new HashMap<>();
                 maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
                 flutter_channel.send(maps);
-                Log.e("readerEPC" + logBaseEpcInfo.getEpc(), logBaseEpcInfo.getEpc());
+                System.out.println(maps);
+                Log.e("readerEPC", logBaseEpcInfo.getEpc());
             }
         };
         client.onTagEpcOver = (s, logBaseEpcOver) -> {
@@ -190,7 +191,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             Map<String, Object> maps = new HashMap<>();
             maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
             flutter_channel.send(maps);
-            Log.e("HandlerTagEpcOver" + logBaseEpcOver.getRtMsg() , logBaseEpcOver.getRtMsg());
+            System.out.println(maps);
+            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
         };
     }
 

@@ -162,27 +162,29 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
                             adapter = BluetoothAdapter.getDefaultAdapter();
                             BluetoothDevice device = adapter.getRemoteDevice(peripheral.getAddress());
-                            if (Build.VERSION.SDK_INT >= 26) {
-                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
-                            } else if (Build.VERSION.SDK_INT >= 23) {
-                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
-                            } else {
-                                bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
-                            }
-                            System.out.println(bluetoothGatt);
-                            if (bluetoothGatt != null) {
-                                Map<String, Object> maps = new HashMap<>();
-                                maps.put("epcAppearMessage",
-                                        "bluetoothGatt:" + bluetoothGatt.toString() +
-                                                "writerCharacteristic:" + mWriteCharacteristic.toString() +
-                                                "notifCharacteristic:" + mNotifyCharacteristic.toString() +
-                                                "device:" + device.toString());
-                                flutter_channel.send(maps);
-                            } else {
-                                Map<String, Object> maps = new HashMap<>();
-                                maps.put("epcAppearMessage",
-                                        "失败");
-                                flutter_channel.send(maps);
+                            if (device != null) {
+                                if (Build.VERSION.SDK_INT >= 26) {
+                                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
+                                } else if (Build.VERSION.SDK_INT >= 23) {
+                                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2);
+                                } else {
+                                    bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
+                                }
+                                System.out.println(bluetoothGatt);
+                                if (bluetoothGatt != null) {
+                                    Map<String, Object> maps = new HashMap<>();
+                                    maps.put("epcAppearMessage",
+                                            "bluetoothGatt:" + bluetoothGatt.toString() +
+                                                    "writerCharacteristic:" + mWriteCharacteristic.toString() +
+                                                    "notifyCharacteristic:" + mNotifyCharacteristic.toString() +
+                                                    "device:" + device.toString());
+                                    flutter_channel.send(maps);
+                                } else {
+                                    Map<String, Object> maps = new HashMap<>();
+                                    maps.put("epcAppearMessage",
+                                            "失败");
+                                    flutter_channel.send(maps);
+                                }
                             }
 //                            device.setServiceCallback(new BleServiceCallback() {
 //                                @Override

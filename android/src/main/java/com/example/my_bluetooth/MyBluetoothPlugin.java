@@ -111,7 +111,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                     List<BluetoothGattService> services = peripheral.getServices();
                                     for (BluetoothGattService service : services) {
                                         //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        if (service.getUuid().toString().equals("49535343-fe7d-4ae5-8fa9-9fafd205e455")) {
+                                        if (service.getUuid().toString().equals("0000fff0-0000-1000-8000-00805f9b34fb")) {
                                             device.findCharacteristic(service);
                                         }
                                     }
@@ -142,7 +142,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
-                        client.sendSynMsg(msgBaseInventoryEpc);
+                        client.sendSynMsg(msgBaseInventoryEpc, 50);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             Log.e("读卡", "操作成功");
                             Map<String, String> map = new HashMap<>();
@@ -158,7 +158,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
                         MsgBaseStop msgBaseStop = new MsgBaseStop();
-                        client.sendSynMsg(msgBaseStop);
+                        client.sendSynMsg(msgBaseStop, 50);
                         if (0x00 == msgBaseStop.getRtCode()) {
                             Log.e("取消读卡", "取消读卡操作成功");
                             Map<String, String> map = new HashMap<>();

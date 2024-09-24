@@ -169,6 +169,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             } else {
                                 bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
                             }
+                            System.out.println(bluetoothGatt);
                             if (bluetoothGatt != null) {
                                 Map<String, Object> maps = new HashMap<>();
                                 maps.put("epcAppearMessage",

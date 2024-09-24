@@ -162,6 +162,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         if (peripheral.getAddress().equals(bluetooth_address)) {
                             adapter = BluetoothAdapter.getDefaultAdapter();
                             BluetoothDevice device = adapter.getRemoteDevice(peripheral.getAddress());
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("epcAppearMessage", "adapter:" + adapter + "device:" + device);
+                            flutter_channel.send(map);
                             if (device != null) {
                                 if (Build.VERSION.SDK_INT >= 26) {
                                     bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback, 2, 1);
@@ -170,36 +173,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                 } else {
                                     bluetoothGatt = device.connectGatt(applicationContext, false, bluetoothGattCallback);
                                 }
-                                System.out.println(bluetoothGatt);
-                                if (bluetoothGatt != null) {
-                                    Map<String, Object> maps = new HashMap<>();
-                                    maps.put("epcAppearMessage",
-                                            "bluetoothGatt:" + bluetoothGatt.toString() +
-                                                    "writerCharacteristic:" + mWriteCharacteristic.toString() +
-                                                    "notifyCharacteristic:" + mNotifyCharacteristic.toString() +
-                                                    "device:" + device.toString());
-                                    flutter_channel.send(maps);
-                                } else {
-                                    Map<String, Object> maps = new HashMap<>();
-                                    maps.put("epcAppearMessage",
-                                            "失败");
-                                    flutter_channel.send(maps);
-                                }
                             }
-//                            device.setServiceCallback(new BleServiceCallback() {
-//                                @Override
-//                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-//                                    List<BluetoothGattService> services = peripheral.getServices();
-//                                    for (BluetoothGattService service : services) {
-//                                        //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-//                                        if (service.getUuid().toString().equals(SERVER_UUID.toString()) ) {
-//                                            device.findCharacteristic(service);
-//                                        }
-//                                    }
-//                                    device.setNotify(true);
-//                                }
-//                            });
-//                            client.openBleDevice(device);
                         }
                     }
                 } else if (arguments.containsKey("stopScanner")) {
@@ -285,8 +259,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 mDescriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
             }
         }
-        
-        this.bluetoothGatt.writeDescriptor(mDescriptor);
+        bluetoothGatt.writeDescriptor(mDescriptor);
     }
     
 }

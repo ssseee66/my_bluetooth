@@ -94,12 +94,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
-                    } else {
-                        central.stopScan();
-                        Map<String, String> map = new HashMap<>();
-                        map.put("scanMessage", "停止扫描");
-                        flutter_channel.send(map);
-                    }
+                    } 
                 } else if (arguments.containsKey("bluetoothAddress")) {
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {
@@ -120,6 +115,50 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                 }
                             });
                             client.openBleDevice(device);
+                        }
+                    }
+                } else if (arguments.containsKey("stopScanner")) {
+                    if ((boolean) arguments.get("stopScanner")) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("scanMessage", "停止扫描");
+                        flutter_channel.send(map);
+                        central.stopScan();
+                    }
+                } else if (arguments.containsKey("close_connect")) {
+                    if ((boolean) arguments.get("close_connect")) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("connectMessage", "连接已关闭");
+                        flutter_channel.send(map);
+                        client.close();
+                    }
+                } else if (arguments.containsKey("startReader")) {
+                    if ((boolean) arguments.get("startReader")) {
+                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                        msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
+                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
+                        client.sendSynMsg(msgBaseInventoryEpc);
+                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMssagee", "读卡操作成功");
+                            flutter_channel.send(map);
+                        } else {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                            flutter_channel.send(map);
+                        }
+                    }
+                } else if (arguments.containsKey("stopReader")) {
+                    if ((boolean) arguments.get("stopReader")) {
+                        MsgBaseStop msgBaseStop = new MsgBaseStop();
+                        client.sendSynMsg(msgBaseStop);
+                        if (0x00 == msgBaseStop.getRtCode()) {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMessage", "取消读卡操作成功");
+                            flutter_channel.send(map);
+                        } else {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMessage", "取消读卡操作失败");
+                            flutter_channel.send(map);
                         }
                     }
                 }

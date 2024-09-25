@@ -13,7 +13,6 @@ import com.gg.reader.api.dal.GClient;
 import com.gg.reader.api.dal.HandlerDebugLog;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
-import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
@@ -28,7 +27,6 @@ import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BasicMessageChannel;
-import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
@@ -41,7 +39,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
 
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
     List<BluetoothPeripheral> peripherals = new LinkedList<>();   // 搜索到的设备列表
-    List<String> epcs = new LinkedList<>();
+    List<String> epcMessages = new LinkedList<>();
     boolean appear_over = false;
 
     BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
@@ -109,7 +107,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     } 
                 } else if (arguments.containsKey("bluetoothAddress")) {    // flutter端发送过来需要连接的设备mac地址
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-
                     for (BluetoothPeripheral peripheral: peripherals) {   // 从搜索到的设备列表中匹配
                         if (peripheral.getAddress().equals(bluetooth_address)) {
                             BleDevice device = new BleDevice(central, peripheral);
@@ -163,6 +160,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                             Log.e("读卡", "操作失败");
                         }
+                        // 搞不懂为什么要在外层进行通讯才行，在里面发送的话会发送不了
+                        // 并且通讯方法只能在主线程中调用，无法通过创建新线程处理
                         if (operationSuccess) {
                             Log.e("上报结束", "标签上报结束");
                             Map<String, Object> map = new HashMap<>();
@@ -170,24 +169,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                         }
                     }
-                } else if (arguments.containsKey("stopReader")) {
-                    if ((boolean) arguments.get("stopReader")) {
-                        MsgBaseStop msgBaseStop = new MsgBaseStop();
-                        Log.e("client",client+"");
-                        Log.e("client name",client.getName());
-                        client.sendSynMsg(msgBaseStop);
-                        if (0x00 == msgBaseStop.getRtCode()) {
-                            //
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "取消读卡操作成功");
+                } else if (arguments.containsKey("startReaderEpc")) {
+                    if ((boolean) arguments.get("startReaderEpc")) {
+                        if (appear_over) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("epcMessage", epcMessages);
                             flutter_channel.send(map);
-                            Log.e("取消读卡", "取消读卡操作成功");
-                        } else {
-                            //
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "取消读卡操作失败");
-                            flutter_channel.send(map);
-                            Log.e("取消读卡", "取消读卡操作失败");
                         }
                     }
                 }
@@ -199,41 +186,18 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     
     }
-    private void delayed() {
-        try {
-            Thread.sleep(600);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    private void send() {
-        Map<String, Object> maps = new HashMap<>();
-        maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + epcs);
-        flutter_channel.send(maps);
-    }
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
             if (logBaseEpcInfo.getResult() == 0) {
                 Log.e("readerEPC", logBaseEpcInfo.getEpc());
-                epcs.add(logBaseEpcInfo.getEpc());
+                epcMessages.add(logBaseEpcInfo.getEpc());
             }
-            
         };
         client.onTagEpcOver = (s, logBaseEpcOver) -> {
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
             // send();
-            Log.e("epcAppearOver", epcs.toString());
+            Log.e("epcAppearOver", epcMessages.toString());
             appear_over = true;
-            epcs.clear();
-            
-            
-//            Map<String, Object> maps = new HashMap<>();
-//            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-//            flutter_channel.send(maps);
-          
-            // System.out.println(maps);
-            
         };
 
         client.debugLog = new HandlerDebugLog() {
@@ -241,8 +205,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             public void sendDebugLog(String msg) {
                 Log.e("sendDebugLog",msg);
             }
-            
-          
+
             public void receiveDebugLog(String msg) {
                 Log.e("receiveDebugLog",msg);
             }

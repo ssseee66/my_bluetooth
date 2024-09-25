@@ -152,9 +152,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             // Log.e("读卡", "操作成功");
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMssagee", "读卡操作成功");
-                            flutter_channel.send(map);
                             Log.e("读卡", "操作成功");
                         } else {
                             // Log.e("读卡", "操作失败");
@@ -220,6 +217,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             // send();
             Log.e("epcAppearOver", epcs.toString());
             epcs.clear();
+            Map<String, String> map = new HashMap<>();
+            map.put("readerOperationMssagee", "读卡操作成功");
+            flutter_channel.send(map);
 //            Map<String, Object> maps = new HashMap<>();
 //            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
 //            flutter_channel.send(maps);

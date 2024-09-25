@@ -154,11 +154,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             // Log.e("读卡", "操作成功");
                             Log.e("读卡", "操作成功");
-                            new Thread(() -> {
-                                 Map<String, String> map = new HashMap<>();
-                                 map.put("readerOperationMssagee", "读卡操作成功");
-                                 flutter_channel.send(map);
-                            }).start();
+                            Map<String, String> map = new HashMap<>();
+                            map.put("readerOperationMssagee", "读卡操作成功");
+                            flutter_channel.send(map);
                         } else {
                             // Log.e("读卡", "操作失败");
                             Map<String, String> map = new HashMap<>();
@@ -214,19 +212,30 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     }
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-            if (logBaseEpcInfo.getResult() == 0) {
-                Log.e("readerEPC", logBaseEpcInfo.getEpc());
-                epcs.add(logBaseEpcInfo.getEpc());
-                // System.out.println(maps);
-                
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (logBaseEpcInfo.getResult() == 0) {
+                        Log.e("readerEPC", logBaseEpcInfo.getEpc());
+                        epcs.add(logBaseEpcInfo.getEpc());
+                        // System.out.println(maps);
+                    }
+                }
+            }).start();
+            
         };
         client.onTagEpcOver = (s, logBaseEpcOver) -> {
-            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-            // send();
-            Log.e("epcAppearOver", epcs.toString());
-            appear_over = true;
-            epcs.clear();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+                    // send();
+                    Log.e("epcAppearOver", epcs.toString());
+                    appear_over = true;
+                    epcs.clear();
+                }
+            }).start();
+            
             
 //            Map<String, Object> maps = new HashMap<>();
 //            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());

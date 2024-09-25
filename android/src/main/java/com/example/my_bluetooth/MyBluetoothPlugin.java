@@ -148,7 +148,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
-                        client.sendSynMsg(msgBaseInventoryEpc, 50);
+                        client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             Log.e("读卡", "操作成功");
                             Map<String, String> map = new HashMap<>();
@@ -166,7 +166,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         MsgBaseStop msgBaseStop = new MsgBaseStop();
                         Log.e("client",client+"");
                         Log.e("client name",client.getName());
-                        client.sendSynMsg(msgBaseStop, 50);
+                        client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {
                             Log.e("取消读卡", "取消读卡操作成功");
                             Map<String, String> map = new HashMap<>();

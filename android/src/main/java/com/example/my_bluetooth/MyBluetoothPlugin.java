@@ -151,12 +151,11 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Single);
                         client.sendSynMsg(msgBaseInventoryEpc);
+                        boolean operationSuccess = false;
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             // Log.e("读卡", "操作成功");
                             Log.e("读卡", "操作成功");
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMssagee", "读卡操作成功");
-                            flutter_channel.send(map);
+                            operationSuccess = true;
                         } else {
                             // Log.e("读卡", "操作失败");
                             Map<String, String> map = new HashMap<>();
@@ -164,8 +163,11 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                             Log.e("读卡", "操作失败");
                         }
-                        if (appear_over) {
+                        if (operationSuccess) {
                             Log.e("上报结束", "标签上报结束");
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("readerOperationMessage", "读卡操作成功");
+                            flutter_channel.send(map);
                         }
                     }
                 } else if (arguments.containsKey("stopReader")) {
@@ -212,29 +214,18 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     }
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (logBaseEpcInfo.getResult() == 0) {
-                        Log.e("readerEPC", logBaseEpcInfo.getEpc());
-                        epcs.add(logBaseEpcInfo.getEpc());
-                        // System.out.println(maps);
-                    }
-                }
-            }).start();
+            if (logBaseEpcInfo.getResult() == 0) {
+                Log.e("readerEPC", logBaseEpcInfo.getEpc());
+                epcs.add(logBaseEpcInfo.getEpc());
+            }
             
         };
         client.onTagEpcOver = (s, logBaseEpcOver) -> {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-                    // send();
-                    Log.e("epcAppearOver", epcs.toString());
-                    appear_over = true;
-                    epcs.clear();
-                }
-            }).start();
+            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+            // send();
+            Log.e("epcAppearOver", epcs.toString());
+            appear_over = true;
+            epcs.clear();
             
             
 //            Map<String, Object> maps = new HashMap<>();

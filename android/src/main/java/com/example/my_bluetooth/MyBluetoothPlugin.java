@@ -175,6 +175,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             Map<String, Object> map = new HashMap<>();
                             map.put("epcMessages", epcMessages);
                             flutter_channel.send(map);
+                            epcMessages.clear();
                         }
                     }
                 }

@@ -173,7 +173,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     if ((boolean) arguments.get("startReaderEpc")) {
                         if (appear_over) {
                             Map<String, Object> map = new HashMap<>();
-                            map.put("epcMessage", epcMessages);
+                            map.put("epcMessages", epcMessages);
                             flutter_channel.send(map);
                         }
                     }

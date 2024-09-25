@@ -89,7 +89,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 StandardMessageCodec.INSTANCE
         );
         
-      
         subscriberHandler();
         central = new BluetoothCentralManager(
                 applicationContext,

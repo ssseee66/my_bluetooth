@@ -147,7 +147,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     if ((boolean) arguments.get("startReader")) {
                         MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
-                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
+                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Single);
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             // Log.e("读卡", "操作成功");

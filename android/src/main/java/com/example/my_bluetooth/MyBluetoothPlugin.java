@@ -150,15 +150,17 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
-                            Log.e("读卡", "操作成功");
+                            // Log.e("读卡", "操作成功");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);
+                            Log.e("读卡", "操作成功");
                         } else {
-                            Log.e("读卡", "操作失败");
+                            // Log.e("读卡", "操作失败");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
                             flutter_channel.send(map);
+                            Log.e("读卡", "操作失败");
                         }
                     }
                 } else if (arguments.containsKey("stopReader")) {
@@ -168,15 +170,17 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         Log.e("client name",client.getName());
                         client.sendSynMsg(msgBaseStop);
                         if (0x00 == msgBaseStop.getRtCode()) {
-                            Log.e("取消读卡", "取消读卡操作成功");
+                            // 
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作成功");
                             flutter_channel.send(map);
+                            Log.e("取消读卡", "取消读卡操作成功");
                         } else {
-                            Log.e("取消读卡", "取消读卡操作失败");
+                            // 
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作失败");
                             flutter_channel.send(map);
+                            Log.e("取消读卡", "取消读卡操作失败");
                         }
                     }
                 }
@@ -192,19 +196,21 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
             if (logBaseEpcInfo.getResult() == 0) {
-                Log.e("readerEPC", logBaseEpcInfo.getEpc());
+                
                 Map<String, Object> maps = new HashMap<>();
                 maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
                 flutter_channel.send(maps);
+                Log.e("readerEPC", logBaseEpcInfo.getEpc());
                 // System.out.println(maps);
                 
             }
         };
         client.onTagEpcOver = (s, logBaseEpcOver) -> {
-            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+            
             Map<String, Object> maps = new HashMap<>();
             maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
             flutter_channel.send(maps);
+            Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
             // System.out.println(maps);
             
         };

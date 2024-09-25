@@ -147,21 +147,19 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     if ((boolean) arguments.get("startReader")) {
                         MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
                         msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
-                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Inventory);
+                        msgBaseInventoryEpc.setInventoryMode(EnumG.BaseMid_InventoryEpc);
                         client.sendSynMsg(msgBaseInventoryEpc);
                         if (0x00 == msgBaseInventoryEpc.getRtCode()) {
                             // Log.e("读卡", "操作成功");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMssagee", "读卡操作成功");
                             flutter_channel.send(map);
-                            delayed();
                             Log.e("读卡", "操作成功");
                         } else {
                             // Log.e("读卡", "操作失败");
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
                             flutter_channel.send(map);
-                            delayed();
                             Log.e("读卡", "操作失败");
                         }
                     }
@@ -176,14 +174,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作成功");
                             flutter_channel.send(map);
-                            delayed();
                             Log.e("取消读卡", "取消读卡操作成功");
                         } else {
                             //
                             Map<String, String> map = new HashMap<>();
                             map.put("readerOperationMessage", "取消读卡操作失败");
                             flutter_channel.send(map);
-                            delayed();
                             Log.e("取消读卡", "取消读卡操作失败");
                         }
                     }
@@ -211,7 +207,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 Map<String, Object> maps = new HashMap<>();
                 maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
                 flutter_channel.send(maps);
-                delayed();
                 Log.e("readerEPC", logBaseEpcInfo.getEpc());
                 // System.out.println(maps);
                 
@@ -222,7 +217,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             Map<String, Object> maps = new HashMap<>();
             maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
             flutter_channel.send(maps);
-            delayed();
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
             // System.out.println(maps);
             

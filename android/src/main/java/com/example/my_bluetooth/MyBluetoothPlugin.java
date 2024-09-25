@@ -163,6 +163,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
                         MsgBaseStop msgBaseStop = new MsgBaseStop();
+                        Log.e("client",client);
+                        Log.e("client name",client.getName());
                         client.sendSynMsg(msgBaseStop, 50);
                         if (0x00 == msgBaseStop.getRtCode()) {
                             Log.e("取消读卡", "取消读卡操作成功");
@@ -203,6 +205,18 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             flutter_channel.send(maps);
             System.out.println(maps);
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
+        };
+
+        client.debugLog = new HandlerDebugLog() {
+            @Override
+            public void sendDebugLog(String msg) {
+                Log.e("sendDebugLog",msg);
+            }
+            
+            @Override
+            public void receiveDebugLog(String msg) {
+                Log.e("receiveDebugLog",msg);
+            }
         };
     }
 

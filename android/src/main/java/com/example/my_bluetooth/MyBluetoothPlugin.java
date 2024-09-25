@@ -41,6 +41,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
 
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
     List<BluetoothPeripheral> peripherals = new LinkedList<>();   // 搜索到的设备列表
+    List<String> epcs = new LinkedList<>();
 
     BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
         @Override
@@ -200,23 +201,28 @@ public class MyBluetoothPlugin implements FlutterPlugin {
         }
     }
     
+    private void send() {
+        Map<String, Object> maps = new HashMap<>();
+        maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + epcs);
+        flutter_channel.send(maps);
+    }
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {
             if (logBaseEpcInfo.getResult() == 0) {
                 Log.e("readerEPC", logBaseEpcInfo.getEpc());
-                Map<String, Object> maps = new HashMap<>();
-                maps.put("epcAppearMessage", "6C标签上报事件>>>" + logBaseEpcInfo.getEpc());
-                flutter_channel.send(maps);
-              
+                epcs.add(logBaseEpcInfo.getEpc());
                 // System.out.println(maps);
                 
             }
         };
         client.onTagEpcOver = (s, logBaseEpcOver) -> {
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
-            Map<String, Object> maps = new HashMap<>();
-            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
-            flutter_channel.send(maps);
+            send();
+            Log.e("epcAppearOver", epcs.toString());
+            epcs.clear();
+//            Map<String, Object> maps = new HashMap<>();
+//            maps.put("epcAppearOverMessage", "6C标签上报结束事件>>>" + logBaseEpcOver.getRtMsg());
+//            flutter_channel.send(maps);
           
             // System.out.println(maps);
             

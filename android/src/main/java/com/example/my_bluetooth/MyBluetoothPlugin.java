@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.gg.reader.api.dal.GClient;
+import com.gg.reader.api.dal.HandlerDebugLog;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
 import com.gg.reader.api.protocol.gx.MsgBaseStop;
@@ -163,7 +164,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
                         MsgBaseStop msgBaseStop = new MsgBaseStop();
-                        Log.e("client",client);
+                        Log.e("client",client+"");
                         Log.e("client name",client.getName());
                         client.sendSynMsg(msgBaseStop, 50);
                         if (0x00 == msgBaseStop.getRtCode()) {
@@ -208,12 +209,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
         };
 
         client.debugLog = new HandlerDebugLog() {
-            @Override
+           
             public void sendDebugLog(String msg) {
                 Log.e("sendDebugLog",msg);
             }
             
-            @Override
+          
             public void receiveDebugLog(String msg) {
                 Log.e("receiveDebugLog",msg);
             }

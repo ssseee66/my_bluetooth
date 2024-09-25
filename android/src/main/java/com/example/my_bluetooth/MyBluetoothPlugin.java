@@ -42,6 +42,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
     List<BluetoothPeripheral> peripherals = new LinkedList<>();   // 搜索到的设备列表
     List<String> epcs = new LinkedList<>();
+    boolean appear_over = false;
 
     BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
         @Override
@@ -160,8 +161,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                             Log.e("读卡", "操作失败");
                         }
-                        delayed();
-                        Log.e("延时", "延时等待");
+                        if (appear_over) {
+                            Log.e("上报结束", "标签上报结束");
+                        }
                     }
                 } else if (arguments.containsKey("stopReader")) {
                     if ((boolean) arguments.get("stopReader")) {
@@ -194,7 +196,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     }
     private void delayed() {
         try {
-            Thread.sleep(100);
+            Thread.sleep(600);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -218,6 +220,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
             // send();
             Log.e("epcAppearOver", epcs.toString());
+            appear_over = true;
             epcs.clear();
             // Map<String, String> map = new HashMap<>();
             // map.put("readerOperationMssagee", "读卡操作成功");

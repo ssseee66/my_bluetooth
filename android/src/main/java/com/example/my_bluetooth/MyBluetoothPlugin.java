@@ -162,7 +162,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         // 搞不懂为什么要在外层进行通讯才行，在里面发送的话会发送不了
                         // 并且通讯方法只能在主线程中调用，无法通过创建新线程处理
                         if (operationSuccess) {
-                            Log.e("上报结束", "标签上报结束");
+                            Log.e("读卡操作", "读卡操作成功");
                             Map<String, Object> map = new HashMap<>();
                             map.put("readerOperationMessage", "读卡操作成功");
                             flutter_channel.send(map);
@@ -173,6 +173,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         if (appear_over) {
                             Map<String, Object> map = new HashMap<>();
                             map.put("epcMessages", epcMessages);
+                            flutter_channel.send(map);
+                            epcMessages.clear();
+                            appear_over = false;
+                        } else {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("epcMessages", "未进行读卡操作！");
                             flutter_channel.send(map);
                             epcMessages.clear();
                         }

@@ -36,6 +36,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private Context applicationContext;
     private GClient client = new GClient();
     private BluetoothCentralManager central;
+    private long ANTENNA_NUM = 0L;
 
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
     List<BluetoothPeripheral> peripherals = new LinkedList<>();   // 搜索到的设备列表
@@ -143,28 +144,34 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("startReader")) {
                     if ((boolean) arguments.get("startReader")) {
-                        MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
-                        msgBaseInventoryEpc.setAntennaEnable(EnumG.AntennaNo_1);
-                        msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Single);
-                        client.sendSynMsg(msgBaseInventoryEpc);
-                        boolean operationSuccess = false;
-                        if (0x00 == msgBaseInventoryEpc.getRtCode()) {
-                            // Log.e("读卡", "操作成功");
-                            Log.e("读卡", "操作成功");
-                            operationSuccess = true;
+                        if (ANTENNA_NUM != 0L) {
+                            MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                            msgBaseInventoryEpc.setAntennaEnable(ANTENNA_NUM);
+                            msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Single);
+                            client.sendSynMsg(msgBaseInventoryEpc);
+                            boolean operationSuccess = false;
+                            if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                                // Log.e("读卡", "操作成功");
+                                Log.e("读卡", "操作成功");
+                                operationSuccess = true;
+                            } else {
+                                // Log.e("读卡", "操作失败");
+                                Map<String, String> map = new HashMap<>();
+                                map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
+                                flutter_channel.send(map);
+                                Log.e("读卡", "操作失败");
+                            }
+                            // 搞不懂为什么要在外层进行通讯才行，在里面发送的话会发送不了
+                            // 并且通讯方法只能在主线程中调用，无法通过创建新线程处理
+                            if (operationSuccess) {
+                                Log.e("读卡操作", "读卡操作成功");
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("readerOperationMessage", "读卡操作成功");
+                                flutter_channel.send(map);
+                            }
                         } else {
-                            // Log.e("读卡", "操作失败");
-                            Map<String, String> map = new HashMap<>();
-                            map.put("readerOperationMessage", "读卡操作失败：" + msgBaseInventoryEpc.getRtCode() + msgBaseInventoryEpc.getRtMsg());
-                            flutter_channel.send(map);
-                            Log.e("读卡", "操作失败");
-                        }
-                        // 搞不懂为什么要在外层进行通讯才行，在里面发送的话会发送不了
-                        // 并且通讯方法只能在主线程中调用，无法通过创建新线程处理
-                        if (operationSuccess) {
-                            Log.e("读卡操作", "读卡操作成功");
                             Map<String, Object> map = new HashMap<>();
-                            map.put("readerOperationMessage", "读卡操作成功");
+                            map.put("readerOperationMessage", "未配置天线端口，请先配置天线端口");
                             flutter_channel.send(map);
                         }
                     }
@@ -182,6 +189,30 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             flutter_channel.send(map);
                             epcMessages.clear();
                         }
+                    }
+                } else if (arguments.containsKey("AntennaNum")) {
+                    int antenna_num = (int) arguments.get("AntennaNum");
+                    switch (antenna_num) {
+                        case 1:
+                            ANTENNA_NUM = EnumG.AntennaNo_1;
+                            break;
+                        case 2:
+                            ANTENNA_NUM = EnumG.AntennaNo_2;
+                            break;
+                        case 3:
+                            ANTENNA_NUM = EnumG.AntennaNo_3;
+                            break;
+                        case 4:
+                            ANTENNA_NUM = EnumG.AntennaNo_4;
+                            break;
+                        default:
+                            ANTENNA_NUM = 0L;
+                            break;
+                    }
+                    if (ANTENNA_NUM != 0L) {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("AntennaNumMessage", "天线设置成功");
+                        flutter_channel.send(map);
                     }
                 }
             }

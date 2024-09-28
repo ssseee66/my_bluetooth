@@ -100,6 +100,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             if (arguments != null) {
                 if (arguments.containsKey("startScanner")) {
                     if ((boolean) arguments.get("startScanner")) {
+                        peripherals.clear();
+                        message_list.clear();
                         central.scanForPeripherals();
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");

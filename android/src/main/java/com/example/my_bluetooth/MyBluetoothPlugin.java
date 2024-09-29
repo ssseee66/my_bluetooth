@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import com.gg.reader.api.dal.GClient;
 import com.gg.reader.api.dal.HandlerDebugLog;
 import com.gg.reader.api.protocol.gx.EnumG;
+import com.gg.reader.api.protocol.gx.MsgBaseGetPower;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
 import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
 import com.peripheral.ble.BleDevice;
@@ -248,9 +249,14 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     client.sendSynMsg(msgBaseSetPower);
                     if (msgBaseSetPower.getRtCode() == 0) {
                         Log.e("设置天线功率", "设置成功");
-                        message_map.clear();
-                        message_map.put("AntennaNumMessage", "天线功率设置成功");
-                        flutter_channel.send(message_map);
+                        MsgBaseGetPower msgBaseGetPower = new MsgBaseGetPower();
+                        client.sendSynMsg(msgBaseGetPower);
+                        if (msgBaseGetPower.getRtCode() == 0) {
+                            message_map.clear();
+                            message_map.put("AntennaNumMessage", "天线功率设置成功" + msgBaseGetPower.toString());
+                            flutter_channel.send(message_map);
+                        }
+                        
                     } else {
                         Log.e("设置天线功率", "设置失败");
                         message_map.clear();

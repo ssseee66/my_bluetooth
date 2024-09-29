@@ -106,7 +106,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "开始扫描");
                         flutter_channel.send(map);
-                    } 
+                    } else {
+                        Log.e("扫描设备", "停止扫描");
+                        Map<String, String> map = new HashMap<>();
+                        map.put("scanMessage", "停止扫描");
+                        flutter_channel.send(map);
+                        central.stopScan();
+                    }
                 } else if (arguments.containsKey("bluetoothAddress")) {    // flutter端发送过来需要连接的设备mac地址
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
                     for (BluetoothPeripheral peripheral: peripherals) {   // 从搜索到的设备列表中匹配
@@ -130,7 +136,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
-                        Log.e("扫描设备", "开始扫描");
+                        Log.e("扫描设备", "停止扫描");
                         Map<String, String> map = new HashMap<>();
                         map.put("scanMessage", "停止扫描");
                         flutter_channel.send(map);

@@ -260,7 +260,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     } else {
                         Log.e("设置天线功率", "设置失败");
                         message_map.clear();
-                        message_map.put("AntennaNumMessage", "天线功率设置成功");
+                        message_map.put("AntennaNumMessage", "天线功率设置失败");
                         flutter_channel.send(message_map);
                     }
                 }

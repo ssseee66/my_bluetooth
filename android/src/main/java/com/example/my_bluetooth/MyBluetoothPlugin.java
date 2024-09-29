@@ -213,6 +213,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("AntennaNum")) {
                     CURRENT_ANTENNA_NUM = (int) arguments.get("AntennaNum");
+                    Log.e("antenna_num", CURRENT_ANTENNA_NUM + "");
                     switch (CURRENT_ANTENNA_NUM) {
                         case 1:
                             ANTENNA_NUM = EnumG.AntennaNo_1;
@@ -239,6 +240,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     MsgBaseSetPower msgBaseSetPower = new MsgBaseSetPower();
                     Map<Integer, Integer> antenna_message =
                             (Map<Integer, Integer>) arguments.get("SetAntennaPower");
+                    Log.e("power", antenna_message.toString());
                     Hashtable<Integer, Integer> hashtable = new Hashtable<>();
                     if (antenna_message != null && !antenna_message.isEmpty()) {
                         for (Integer antenna : antenna_message.keySet()) {

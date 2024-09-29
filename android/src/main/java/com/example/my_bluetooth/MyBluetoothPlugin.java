@@ -212,7 +212,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         }
                     }
                 } else if (arguments.containsKey("AntennaNum")) {
-            i       CURRENT_ANTENNA_NUM = (int) arguments.get("AntennaNum");
+                    CURRENT_ANTENNA_NUM = (int) arguments.get("AntennaNum");
                     switch (CURRENT_ANTENNA_NUM) {
                         case 1:
                             ANTENNA_NUM = EnumG.AntennaNo_1;

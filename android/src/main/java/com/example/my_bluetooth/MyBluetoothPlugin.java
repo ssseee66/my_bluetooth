@@ -13,6 +13,7 @@ import com.gg.reader.api.dal.GClient;
 import com.gg.reader.api.dal.HandlerDebugLog;
 import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
+import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
@@ -21,6 +22,7 @@ import com.peripheral.ble.BluetoothPeripheral;
 import com.peripheral.ble.HciStatus;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +40,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private final UUID SERVICE_UUID = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
     private GClient client = new GClient();
     private BluetoothCentralManager central;
-    private long ANTENNA_NUM = 0L;
+    private Long ANTENNA_NUM = 0L;
+    private int CURRENT_ANTENNA_NUM = 0;
     private Map<String, Object> message_map = new HashMap<>();
 
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
@@ -180,7 +183,10 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             if (operationSuccess) {
                                 Log.e("读卡操作", "读卡操作成功");
                                 message_map.clear();
-                                message_map.put("readerOperationMessage", "读卡操作成功");
+                                message_map.put("readerOperationMessage",
+                                        "读卡操作成功&" +
+                                                getCurrentAntennaNum(
+                                                        msgBaseInventoryEpc.getAntennaEnable()));
                                 flutter_channel.send(message_map);
                             }
                         } else {
@@ -205,8 +211,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         }
                     }
                 } else if (arguments.containsKey("AntennaNum")) {
-                    int antenna_num = (int) arguments.get("AntennaNum");
-                    switch (antenna_num) {
+                    CURRENT_ANTENNA_NUM = (int) arguments.get("AntennaNum");
+                    switch (CURRENT_ANTENNA_NUM) {
                         case 1:
                             ANTENNA_NUM = EnumG.AntennaNo_1;
                             break;
@@ -228,6 +234,29 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         message_map.put("AntennaNumMessage", "天线设置成功");
                         flutter_channel.send(message_map);
                     }
+                } else if (arguments.containsKey("SetAntennaPower")) {
+                    MsgBaseSetPower msgBaseSetPower = new MsgBaseSetPower();
+                    Map<Integer, Integer> antenna_message =
+                            (Map<Integer, Integer>) arguments.get("SetAntennaPower");
+                    Hashtable<Integer, Integer> hashtable = new Hashtable<>();
+                    if (antenna_message != null && !antenna_message.isEmpty()) {
+                        for (Integer antenna : antenna_message.keySet()) {
+                            hashtable.put(antenna, antenna_message.get(antenna));
+                        }
+                    }
+                    msgBaseSetPower.setDicPower(hashtable);
+                    client.sendSynMsg(msgBaseSetPower);
+                    if (msgBaseSetPower.getRtCode() == 0) {
+                        Log.e("设置天线功率", "设置成功");
+                        message_map.clear();
+                        message_map.put("AntennaNumMessage", "天线功率设置成功");
+                        flutter_channel.send(message_map);
+                    } else {
+                        Log.e("设置天线功率", "设置失败");
+                        message_map.clear();
+                        message_map.put("AntennaNumMessage", "天线功率设置成功");
+                        flutter_channel.send(message_map);
+                    }
                 }
             }
         });
@@ -236,6 +265,18 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     
+    }
+    private int getCurrentAntennaNum(Long antennaNum) {
+        if (antennaNum == EnumG.AntennaNo_1) {
+            return 1;
+        } else if (antennaNum == EnumG.AntennaNo_2) {
+            return 2;
+        } else if (antennaNum == EnumG.AntennaNo_3) {
+            return 3;
+        } else if (antennaNum == EnumG.AntennaNo_4) {
+            return 4;
+        }
+        return 0;
     }
     private void subscriberHandler() {
         client.onTagEpcLog = (s, logBaseEpcInfo) -> {

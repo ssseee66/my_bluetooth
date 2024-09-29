@@ -113,12 +113,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                         message_map.clear();
                         message_map.put("scanMessage", "开始扫描");
                         flutter_channel.send(message_map);
-                    } else {
-                        Log.e("扫描设备", "停止扫描");
-                        message_map.clear();
-                        message_map.put("scanMessage", "停止扫描");
-                        flutter_channel.send(message_map);
-                        central.stopScan();
                     }
                 } else if (arguments.containsKey("bluetoothAddress")) {    // flutter端发送过来需要连接的设备mac地址
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");

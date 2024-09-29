@@ -168,8 +168,8 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                                 message_map.clear();
                                 message_map.put("readerOperationMessage",
                                             "读卡操作失败：" +
-                                               msgBaseInventoryEpc.getRtCode() +
-                                               msgBaseInventoryEpc.getRtMsg());
+                                                msgBaseInventoryEpc.getRtCode() +
+                                                msgBaseInventoryEpc.getRtMsg());
                                 flutter_channel.send(message_map);
                                 Log.e("读卡", "操作失败");
                             }
@@ -178,10 +178,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                             if (operationSuccess) {
                                 Log.e("读卡操作", "读卡操作成功");
                                 message_map.clear();
-                                message_map.put("readerOperationMessage",
-                                        "读卡操作成功&" +
-                                                getCurrentAntennaNum(
-                                                        msgBaseInventoryEpc.getAntennaEnable()));
+                                CURRENT_ANTENNA_NUM = getCurrentAntennaNum(msgBaseInventoryEpc.getAntennaEnable());
+                                message_map.put("readerOperationMessage", 
+                                    "读卡操作成功,数据端口：" + CURRENT_ANTENNA_NUM);
                                 flutter_channel.send(message_map);
                             }
                         } else {
@@ -194,6 +193,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     if ((boolean) arguments.get("startReaderEpc")) {
                         if (appear_over) {
                             message_map.clear();
+                            epcMessages.add("数据端口：" + CURRENT_ANTENNA_NUM);
                             message_map.put("epcMessages", epcMessages);
                             flutter_channel.send(message_map);
                             epcMessages.clear();
@@ -232,14 +232,15 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("SetAntennaPower")) {
                     MsgBaseSetPower msgBaseSetPower = new MsgBaseSetPower();
-                    Map<Integer, Integer> antenna_message =
-                            (Map<Integer, Integer>) arguments.get("SetAntennaPower");
+                    String antenna_message =
+                            (String) arguments.get("SetAntennaPower");
                     Log.e("power", antenna_message.toString());
                     Hashtable<Integer, Integer> hashtable = new Hashtable<>();
-                    if (antenna_message != null && !antenna_message.isEmpty()) {
-                        for (Integer antenna : antenna_message.keySet()) {
-                            hashtable.put(antenna, antenna_message.get(antenna));
-                        }
+                    for (String antenna : antenna_message.split("&", -1)) {
+                        String[] messages = antenna.split("#", -1);
+                        Integer num = Integer.parseInt(messages[0]);
+                        Integer power = Integer.parseInt(messages[1]);
+                        hashtable.put(num, power);
                     }
                     msgBaseSetPower.setDicPower(hashtable);
                     client.sendSynMsg(msgBaseSetPower);
@@ -295,7 +296,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
         };
 
         client.debugLog = new HandlerDebugLog() {
-           
             public void sendDebugLog(String msg) {
                 Log.e("sendDebugLog",msg);
             }

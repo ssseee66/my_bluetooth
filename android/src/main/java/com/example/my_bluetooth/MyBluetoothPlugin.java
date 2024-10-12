@@ -116,25 +116,22 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("bluetoothAddress")) {    // flutter端发送过来需要连接的设备mac地址
                     String bluetooth_address = (String) arguments.get("bluetoothAddress");
-                    for (BluetoothPeripheral peripheral: peripherals) {   // 从搜索到的设备列表中匹配
-                        if (peripheral.getAddress().equals(bluetooth_address)) {
-                            BleDevice device = new BleDevice(central, peripheral);
-                            device.setServiceCallback(new BleServiceCallback() {
-                                @Override
-                                public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-                                    List<BluetoothGattService> services = peripheral.getServices();
-                                    for (BluetoothGattService service : services) {
-                                        //示例"0000fff0-0000-1000-8000-00805f9b34fb"
-                                        if (service.getUuid().toString().equals(SERVICE_UUID.toString())) {
-                                            device.findCharacteristic(service);
-                                        }
-                                    }
-                                    device.setNotify(true);
+                    BluetoothPeripheral peripheral = central.getPeripheral(bluetooth_address);
+                    BleDevice device = new BleDevice(central, peripheral);
+                    device.setServiceCallback(new BleServiceCallback() {
+                        @Override
+                        public void onServicesDiscovered(BluetoothPeripheral peripheral) {
+                            List<BluetoothGattService> services = peripheral.getServices();
+                            for (BluetoothGattService service : services) {
+                                //示例"0000fff0-0000-1000-8000-00805f9b34fb"
+                                if (service.getUuid().toString().equals(SERVICE_UUID.toString())) {
+                                    device.findCharacteristic(service);
                                 }
-                            });
-                            client.openBleDevice(device);
+                            }
+                            device.setNotify(true);
                         }
-                    }
+                    });
+                    client.openBleDevice(device);
                 } else if (arguments.containsKey("stopScanner")) {
                     if ((boolean) arguments.get("stopScanner")) {
                         Log.e("扫描设备", "停止扫描");
@@ -191,10 +188,12 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     }
                 } else if (arguments.containsKey("startReaderEpc")) {
                     if ((boolean) arguments.get("startReaderEpc")) {
+                        Log.e("start_reader_epc", "开始读取数据");
                         if (appear_over) {
                             message_map.clear();
-                            epcMessages.add("数据端口：" + CURRENT_ANTENNA_NUM);
+                            epcMessages.add("数据端口:" + CURRENT_ANTENNA_NUM);
                             message_map.put("epcMessages", epcMessages);
+                            Log.e("epcMessages", "" + message_map);
                             flutter_channel.send(message_map);
                             epcMessages.clear();
                             appear_over = false;

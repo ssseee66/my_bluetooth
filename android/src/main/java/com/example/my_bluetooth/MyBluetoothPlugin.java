@@ -15,7 +15,6 @@ import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseGetPower;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
 import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
-import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
@@ -45,6 +44,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     private Long ANTENNA_NUM = 0L;
     private int CURRENT_ANTENNA_NUM = 0;
     private Map<String, Object> message_map = new HashMap<>();
+    private boolean APPEAR_OVER = false;
 
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
     List<BluetoothPeripheral> peripherals = new LinkedList<>();   // 搜索到的设备列表
@@ -189,15 +189,21 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 } else if (arguments.containsKey("startReaderEpc")) {
                     if ((boolean) arguments.get("startReaderEpc")) {
                         Log.e("start_reader_epc", "开始读取数据");
-                        MsgBaseStop msgBaseStop = new MsgBaseStop();
-                        client.sendSynMsg(msgBaseStop);
-                        if (0x00 == msgBaseStop.getRtCode()) {
+                        if (APPEAR_OVER) {
                             message_map.clear();
                             epcMessages.add("数据端口:" + CURRENT_ANTENNA_NUM);
                             message_map.put("epcMessages", epcMessages);
                             Log.e("epcMessages", "" + message_map);
                             flutter_channel.send(message_map);
                             epcMessages.clear();
+                            APPEAR_OVER = false;
+                        } else {
+                            message_map.clear();
+                            List<String> message_list = new LinkedList<>();
+                            message_list.add("未上报结束");
+                            message_map.put("epcMessages", message_list);
+                            flutter_channel.send(message_map);
+                            Log.e("appear_over_not", "未上报结束");
                         }
                     }
                 } else if (arguments.containsKey("AntennaNum")) {
@@ -287,6 +293,7 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
             // send();
             Log.e("epcAppearOver", epcMessages.toString());
+            APPEAR_OVER = true;
         };
 
         client.debugLog = new HandlerDebugLog() {

@@ -15,6 +15,7 @@ import com.gg.reader.api.protocol.gx.EnumG;
 import com.gg.reader.api.protocol.gx.MsgBaseGetPower;
 import com.gg.reader.api.protocol.gx.MsgBaseInventoryEpc;
 import com.gg.reader.api.protocol.gx.MsgBaseSetPower;
+import com.gg.reader.api.protocol.gx.MsgBaseStop;
 import com.peripheral.ble.BleDevice;
 import com.peripheral.ble.BleServiceCallback;
 import com.peripheral.ble.BluetoothCentralManager;
@@ -48,7 +49,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
     List<BluetoothPeripheral> peripherals = new LinkedList<>();   // 搜索到的设备列表
     List<String> epcMessages = new LinkedList<>();
-    boolean appear_over = false;
 
     BluetoothCentralManagerCallback centralManagerCallback = new BluetoothCentralManagerCallback() {
         @Override
@@ -189,17 +189,13 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 } else if (arguments.containsKey("startReaderEpc")) {
                     if ((boolean) arguments.get("startReaderEpc")) {
                         Log.e("start_reader_epc", "开始读取数据");
-                        if (appear_over) {
+                        MsgBaseStop msgBaseStop = new MsgBaseStop();
+                        client.sendSynMsg(msgBaseStop);
+                        if (0x00 == msgBaseStop.getRtCode()) {
                             message_map.clear();
                             epcMessages.add("数据端口:" + CURRENT_ANTENNA_NUM);
                             message_map.put("epcMessages", epcMessages);
                             Log.e("epcMessages", "" + message_map);
-                            flutter_channel.send(message_map);
-                            epcMessages.clear();
-                            appear_over = false;
-                        } else {
-                            message_map.clear();
-                            message_map.put("epcMessages", "未进行读卡操作！");
                             flutter_channel.send(message_map);
                             epcMessages.clear();
                         }
@@ -291,7 +287,6 @@ public class MyBluetoothPlugin implements FlutterPlugin {
             Log.e("HandlerTagEpcOver", logBaseEpcOver.getRtMsg());
             // send();
             Log.e("epcAppearOver", epcMessages.toString());
-            appear_over = true;
         };
 
         client.debugLog = new HandlerDebugLog() {

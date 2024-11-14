@@ -38,19 +38,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                     String channel_name = (String) channelMessage.get("channelName");
                     Log.e("channelName", channel_name);
                     MyListener listener = new MyListener(
-                                            channel_name,
-                                            applicationContext,
-                                            flutterPluginBinding.getBinaryMessenger());
-                    // if (!listeners.containsKey(channel_name)) {
-                    //     MyListener listener =
-                    //             new MyListener(
-                    //                     channel_name,
-                    //                     applicationContext,
-                    //                     flutterPluginBinding.getBinaryMessenger()
-                    //             );
-                    //     listeners.put(channel_name, listener);
-                    //     Log.e("listeners", listeners.toString());
-                    // }
+                        channel_name,
+                        applicationContext,
+                        flutterPluginBinding.getBinaryMessenger());
                 }
             }
         });

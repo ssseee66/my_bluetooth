@@ -150,40 +150,40 @@ public class MyListener {
             }
             if (arguments.containsKey("startReader")) {
                 if (!(boolean) arguments.get("startReader")) return;
-                if (ANTENNA_NUM != 0L) {
-                    MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
-                    msgBaseInventoryEpc.setAntennaEnable(ANTENNA_NUM);
-                    msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Single);
-                    client.sendSynMsg(msgBaseInventoryEpc);
-                    boolean operationSuccess = false;
-                    if (0x00 == msgBaseInventoryEpc.getRtCode()) {
-                        // Log.e("读卡", "操作成功");
-                        Log.e("读卡", "操作成功");
-                        operationSuccess = true;
-                    } else {
-                        // Log.e("读卡", "操作失败");
-                        message_map.clear();
-                        message_map.put("readerOperationMessage",
-                                "读卡操作失败：" +
-                                        msgBaseInventoryEpc.getRtCode() +
-                                        msgBaseInventoryEpc.getRtMsg());
-                        message_channel.send(message_map);
-                        Log.e("读卡", "操作失败");
-                    }
-                    // 搞不懂为什么要在外层进行通讯才行，在里面发送的话会发送不了
-                    // 并且通讯方法只能在主线程中调用，无法通过创建新线程处理
-                    if (!operationSuccess) return;
-                    Log.e("读卡操作", "读卡操作成功");
+                if (ANTENNA_NUM == 0L) {
                     message_map.clear();
-                    CURRENT_ANTENNA_NUM = getCurrentAntennaNum(msgBaseInventoryEpc.getAntennaEnable());
-                    message_map.put("readerOperationMessage",
-                            "读卡操作成功,数据端口：" + CURRENT_ANTENNA_NUM);
+                    message_map.put("readerOperationMessage", "未配置天线端口，请先配置天线端口");
                     message_channel.send(message_map);
-                } else {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("readerOperationMessage", "未配置天线端口，请先配置天线端口");
-                    message_channel.send(map);
+                    return;
                 }
+                MsgBaseInventoryEpc msgBaseInventoryEpc = new MsgBaseInventoryEpc();
+                msgBaseInventoryEpc.setAntennaEnable(ANTENNA_NUM);
+                msgBaseInventoryEpc.setInventoryMode(EnumG.InventoryMode_Single);
+                client.sendSynMsg(msgBaseInventoryEpc);
+                boolean operationSuccess = false;
+                if (0x00 == msgBaseInventoryEpc.getRtCode()) {
+                    // Log.e("读卡", "操作成功");
+                    Log.e("读卡", "操作成功");
+                    operationSuccess = true;
+                } else {
+                    // Log.e("读卡", "操作失败");
+                    message_map.clear();
+                    message_map.put("readerOperationMessage",
+                            "读卡操作失败：" +
+                                    msgBaseInventoryEpc.getRtCode() +
+                                    msgBaseInventoryEpc.getRtMsg());
+                    message_channel.send(message_map);
+                    Log.e("读卡", "操作失败");
+                }
+                // 搞不懂为什么要在外层进行通讯才行，在里面发送的话会发送不了
+                // 并且通讯方法只能在主线程中调用，无法通过创建新线程处理
+                if (!operationSuccess) return;
+                Log.e("读卡操作", "读卡操作成功");
+                message_map.clear();
+                CURRENT_ANTENNA_NUM = getCurrentAntennaNum(msgBaseInventoryEpc.getAntennaEnable());
+                message_map.put("readerOperationMessage",
+                        "读卡操作成功,数据端口：" + CURRENT_ANTENNA_NUM);
+                message_channel.send(message_map);
             }
             if (arguments.containsKey("startReaderEpc")) {
                 if (!(boolean) arguments.get("startReaderEpc")) return;

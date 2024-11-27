@@ -1,15 +1,3 @@
-# my_bluetooth
-
-A new Flutter plugin project.
-
-## Getting Started
-
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
+# 这是基于flutter的蓝牙（Ble低功耗）插件，主要针对flet进行开发，因为flet基于flutter因此flet也能够调用flutter插件
+# 能够与flutter端进行通信，进而完成蓝牙的各种功能（使用了特定API，不一定适用于其他蓝牙）
+# 主要使用了flutter中的BasicMessageChannel进行双向通信，flutter端向Android端请求后Android端进行相应操作并作出相应响应

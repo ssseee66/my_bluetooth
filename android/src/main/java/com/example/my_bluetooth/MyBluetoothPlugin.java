@@ -14,7 +14,9 @@ import io.flutter.plugin.common.StandardMessageCodec;
 
 /** RfidReaderPlugin */
 public class MyBluetoothPlugin implements FlutterPlugin {
+    //  flutter于原生Android端通信通道名称
     private static final String FLUTTER_TO_ANDROID_CHANNEL = "flutter_and_android";
+    //  程序上下文
     private Context applicationContext;
     
     
@@ -29,14 +31,16 @@ public class MyBluetoothPlugin implements FlutterPlugin {
                 StandardMessageCodec.INSTANCE
         );
         
+        //  为通信通道实例对象设置监听方法，使其能够监听到来之flutter端的信息
         flutter_channel.setMessageHandler((message, reply) -> {
             Map<String, Object> channelMessage = castMap(message, String.class, Object.class);
             if (channelMessage == null) return;
-            if (channelMessage.containsKey("channelName")) {
-                String channel_name = (String) channelMessage.get("channelName");
+            if (channelMessage.containsKey("channelName")) {   //  当flutter端请求创建蓝牙相关监听实例
+                //  获取flutter端发送过来的通信通道名称
+                String channel_name = (String) channelMessage.get("channelName");   
                 if (channel_name == null) return;
                 Log.e("channelName", channel_name);
-                new MyListener(
+                new MyListener(     //  创建新的蓝牙事件监听类实例
                         channel_name,
                         applicationContext,
                         flutterPluginBinding.getBinaryMessenger());
@@ -49,6 +53,9 @@ public class MyBluetoothPlugin implements FlutterPlugin {
     
     }
     public static <K, V> Map<K, V> castMap(Object obj, Class<K> key, Class<V> value) {
+        /*
+        对于对象转换为Map类型作出检查
+        */
         Map<K, V> map = new HashMap<>();
         if (obj instanceof Map<?, ?>) {
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) obj).entrySet()) {

@@ -28,7 +28,11 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -43,6 +47,7 @@ public class MyListener {
     private Long ANTENNA_NUM = 0L;
     private int CURRENT_ANTENNA_NUM = 0;
     private final Map<String, Object> message_map = new HashMap<>();
+    private final Map<String, Consumer<String>> action_map = new HashMap<>();
     private boolean APPEAR_OVER = false;
     
     List<String> message_list = new LinkedList<>();      // 设备名称和mac地址信息列表
@@ -95,6 +100,15 @@ public class MyListener {
                 channelName,
                 StandardMessageCodec.INSTANCE
         );
+        action_map.put("startScanner",      this::scanBleDevice);
+        action_map.put("stopScanner",       this::stopScanBleDevice);
+        action_map.put("connect",           this::connectBleDevice);
+        action_map.put("closeConnect",      this::closeBleDeviceConnect);
+        action_map.put("startReader",       this::startReader);
+        action_map.put("startReaderEpc",    this::startReaderEpc);
+        action_map.put("setAntennaNum",     this::setAntennaNum);
+        action_map.put("setAntennaPower",   this::setAntennaPower);
+        action_map.put("queryRfidCapacity", this::queryRfidCapacity);
         Log.e("listener_channel_name", channelName);
         
         subscriberHandler();    // 订阅标签TCP事件
@@ -105,7 +119,9 @@ public class MyListener {
         message_channel.setMessageHandler((message, reply) -> {   // 设置通信通道对象监听方法
             arguments = castMap(message, String.class, Object.class);
             if (arguments == null) return;
-            executeOperation(getCurrentKey());
+            String key = getCurrentKey();
+            Objects.requireNonNull(action_map.get(key)).accept(key);
+//            executeOperation(getCurrentKey());
         });
     }
     
@@ -145,40 +161,6 @@ public class MyListener {
         else if (arguments.containsKey("setAntennaPower"))    key = "setAntennaPower";
         else if (arguments.containsKey("queryRfidCapacity"))  key = "queryRfidCapacity";
         return key;
-    }
-    
-    private void executeOperation(@NonNull String key) {
-        switch (key) {
-            case "startScanner":
-                scanBleDevice(key);  //  扫描附近蓝牙设备
-                break;
-            case "stopScanner":
-                stopScanBleDevice(key);    // 停止扫描蓝牙设备
-                break;
-            case "connect":
-                connectBleDevice(key);   //  连接蓝牙设备 
-                break;
-            case "closeConnect":
-                closeBleDeviceConnect(key);    // 关闭连接
-                break;
-            case "startReader":
-                startReader(key);       //  读卡
-                break;
-            case "startReaderEpc":
-                startReaderEpc(key);    //  读取的读卡操作所获取的标签数据
-                break;
-            case "setAntennaNum":
-                setAntennaNum(key);     //  设置读卡时的使能天线端口号
-                break;
-            case "setAntennaPower":
-                setAntennaPower(key);    //  设置蓝牙天线端口功率
-                break;
-            case "queryRfidCapacity":
-                queryRfidCapacity(key);   // 查询蓝牙的读写能力
-                break;
-            default:
-                break;
-        }
     }
     
     @NonNull
